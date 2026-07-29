@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Glass New Tab Redirect",
+  "version": "1.0.0",
+  "description": "将 Chrome 的新标签页重定向到本地 Glass 自定义首页",
+  "chrome_url_overrides": {
+    "newtab": "redirect.html"
+  }
+}

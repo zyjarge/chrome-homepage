@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glass New Tab</title>
+  <style>
+    /* ==================== CSS Reset & Base ==================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* 高级渐变背景：深蓝 / 紫 / 粉交织 */
+    body {
+      background:
+        radial-gradient(circle at 15% 20%, rgba(92, 37, 141, 0.9) 0%, transparent 35%),
+        radial-gradient(circle at 85% 15%, rgba(255, 88, 154, 0.7) 0%, transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(48, 67, 175, 0.9) 0%, transparent 40%),
+        linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 24px 64px;
+    }
+
+    /* ==================== Utility: Glass Card ==================== */
+    .glass {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    /* ==================== Header: Time / Date / Controls ==================== */
+    header {
+      width: 100%;
+      max-width: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 18px 24px;
+      border-radius: 20px;
+    }
+
+    .time-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    #clock {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    #date {
+      font-size: 0.95rem;
+      opacity: 0.85;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ==================== Buttons ==================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(255, 88, 154, 0.8), rgba(140, 58, 250, 0.8));
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, rgba(255, 88, 154, 0.95), rgba(140, 58, 250, 0.95));
+    }
+
+    .btn-danger {
+      background: rgba(244, 67, 54, 0.75);
+    }
+
+    .btn-danger:hover {
+      background: rgba(244, 67, 54, 0.9);
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 1.1rem;
+    }
+
+    /* ==================== Search Bar ==================== */
+    .search-bar {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto 32px;
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      gap: 12px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 1.05rem;
+    }
+
+    .search-bar input::placeholder {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .search-bar .search-icon {
+      opacity: 0.7;
+      font-size: 1.1rem;
+    }
+
+    /* ==================== Main Layout ==================== */
+    main {
+      width: 100%;
+      max-width: none;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ==================== Group Section ==================== */
+    .group {
+      border-radius: 20px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .group-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .group-title .group-emoji {
+      font-size: 1.1rem;
+    }
+
+    .group-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .group-actions .btn-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 1rem;
+    }
+
+    /* ==================== Shortcut Grid ==================== */
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    /* 单个快捷卡片 */
+    .shortcut-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 4px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+      overflow: hidden;
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .shortcut-card:hover {
+      transform: translateY(-4px) scale(1.03);
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 12px rgba(255, 255, 255, 0.12);
+    }
+
+    .shortcut-card .icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 1.15rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .shortcut-card .icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .shortcut-card .name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 2px;
+    }
+
+    /* 卡片悬浮时显示编辑 / 删除按钮 */
+    .card-actions {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+
+    .shortcut-card:hover .card-actions {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .card-actions .btn-icon {
+      width: 22px;
+      height: 22px;
+      font-size: 0.75rem;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .card-actions .btn-icon:hover {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    /* ==================== Empty State ==================== */
+    .empty-tip {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 12px;
+      opacity: 0.6;
+      font-size: 0.8rem;
+    }
+
+    /* ==================== Modal ==================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 24px;
+      padding: 28px;
+      transform: translateY(16px);
+      transition: transform 0.25s ease;
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(0, 0, 0, 0.2);
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    /* 图标预览 */
+    .icon-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .icon-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    /* ==================== Confirm Toast ==================== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-weight: 600;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+      z-index: 1100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==================== Responsive ==================== */
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .shortcut-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 20px 12px 48px;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      #clock {
+        font-size: 1.9rem;
+      }
+
+      .shortcut-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ==================== Header ==================== -->
+  <header class="glass">
+    <div class="time-block">
+      <div id="clock">00:00</div>
+      <div id="date">载入中...</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" id="btn-manage-groups" title="管理分组">
+        <span>📁</span> 管理分组
+      </button>
+      <button class="btn btn-primary" id="btn-add-link" title="添加快捷入口">
+        <span>＋</span> 添加快捷
+      </button>
+      <button class="btn" id="btn-reset" title="恢复默认数据">
+        <span>↺</span> 重置
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== Search Bar ==================== -->
+  <div class="search-bar glass">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="输入关键词，按回车使用 Google 搜索..." autocomplete="off" />
+  </div>
+
+  <!-- ==================== Main Groups Container ==================== -->
+  <main id="groups-container"></main>
+
+  <!-- ==================== Modal: Add / Edit Shortcut ==================== -->
+  <div class="modal-overlay" id="link-modal">
+    <div class="modal glass">
+      <h2 id="link-modal-title">添加快捷入口</h2>
+
+      <div class="icon-preview" id="icon-preview">🌐</div>
+
+      <div class="form-group">
+        <label for="link-name">网站名称</label>
+        <input type="text" id="link-name" placeholder="例如：GitHub" maxlength="24" />
+      </div>
+
+      <div class="form-group">
+        <label for="link-url">网站地址（URL）</label>
+        <input type="text" id="link-url" placeholder="例如：https://github.com" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="link-icon">图标 / Emoji</label>
+          <input type="text" id="link-icon" placeholder="例如：🐙 或留空" maxlength="2" />
+          <div class="hint">可输入 1~2 个 Emoji，或留空自动获取网站 Favicon</div>
+        </div>
+        <div class="form-group">
+          <label for="link-group">所属分组</label>
+          <select id="link-group"></select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" id="btn-link-cancel">取消</button>
+        <button class="btn btn-primary" id="btn-link-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Modal: Manage Groups ==================== -->
+  <div class="modal-overlay" id="groups-modal">
+    <div class="modal glass">
+      <h2>管理分组</h2>
+
+      <div class="form-group">
+        <label>现有分组</label>
+        <div id="groups-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px;"></div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <label for="new-group-name">新增分组</label>
+        <div style="display:flex;gap:10px;">
+          <input type="text" id="new-group-name" placeholder="分组名称" style="flex:1;" />
+          <input type="text" id="new-group-emoji" placeholder="Emoji" style="width:80px;" maxlength="2" />
+          <button class="btn btn-primary" id="btn-create-group">创建</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" id="btn-groups-close">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Toast ==================== -->
+  <div class="toast glass" id="toast"></div>
+
+  <!-- ==================== JavaScript ==================== -->
+  <script>
+    /* ==================== Constants & Default Data ==================== */
+    const STORAGE_KEY = 'glass-new-tab-data-v1';
+
+    // 内置初始数据：工作 / 娱乐 / 学习
+    const DEFAULT_DATA = {
+      groups: [
+        { id: 'g-work', name: '工作 / 常用工具', emoji: '💼' },
+        { id: 'g-ent', name: '娱乐 / 社交', emoji: '🎮' },
+        { id: 'g-learn', name: '学习 / 资讯', emoji: '📚' }
+      ],
+      shortcuts: [
+        { id: 's-1', name: 'GitHub', url: 'https://github.com', icon: '🐙', groupId: 'g-work' },
+        { id: 's-2', name: 'Vercel', url: 'https://vercel.com', icon: '▲', groupId: 'g-work' },
+        { id: 's-3', name: 'Figma', url: 'https://figma.com', icon: '🎨', groupId: 'g-work' },
+        { id: 's-4', name: 'ChatGPT', url: 'https://chat.openai.com', icon: '🤖', groupId: 'g-work' },
+        { id: 's-5', name: 'Bilibili', url: 'https://bilibili.com', icon: '📺', groupId: 'g-ent' },
+        { id: 's-6', name: 'YouTube', url: 'https://youtube.com', icon: '▶️', groupId: 'g-ent' },
+        { id: 's-7', name: 'Twitter', url: 'https://twitter.com', icon: '🐦', groupId: 'g-ent' },
+        { id: 's-8', name: '知乎', url: 'https://zhihu.com', icon: '💡', groupId: 'g-learn' },
+        { id: 's-9', name: '掘金', url: 'https://juejin.cn', icon: '📖', groupId: 'g-learn' },
+        { id: 's-10', name: 'MDN', url: 'https://developer.mozilla.org', icon: '🌐', groupId: 'g-learn' }
+      ]
+    };
+
+    /* ==================== State ==================== */
+    let state = { groups: [], shortcuts: [] };
+    let editingLinkId = null;
+
+    /* ==================== DOM References ==================== */
+    const els = {
+      clock: document.getElementById('clock'),
+      date: document.getElementById('date'),
+      container: document.getElementById('groups-container'),
+      searchInput: document.getElementById('search-input'),
+      toast: document.getElementById('toast'),
+      linkModal: document.getElementById('link-modal'),
+      linkModalTitle: document.getElementById('link-modal-title'),
+      linkName: document.getElementById('link-name'),
+      linkUrl: document.getElementById('link-url'),
+      linkIcon: document.getElementById('link-icon'),
+      linkGroup: document.getElementById('link-group'),
+      iconPreview: document.getElementById('icon-preview'),
+      btnAddLink: document.getElementById('btn-add-link'),
+      btnLinkCancel: document.getElementById('btn-link-cancel'),
+      btnLinkSave: document.getElementById('btn-link-save'),
+      groupsModal: document.getElementById('groups-modal'),
+      groupsList: document.getElementById('groups-list'),
+      newGroupName: document.getElementById('new-group-name'),
+      newGroupEmoji: document.getElementById('new-group-emoji'),
+      btnManageGroups: document.getElementById('btn-manage-groups'),
+      btnGroupsClose: document.getElementById('btn-groups-close'),
+      btnCreateGroup: document.getElementById('btn-create-group'),
+      btnReset: document.getElementById('btn-reset')
+    };
+
+    /* ==================== Helpers ==================== */
+    function generateId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.groups) && Array.isArray(parsed.shortcuts)) {
+            state = parsed;
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('读取本地配置失败，使用默认数据', e);
+      }
+      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveData();
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn('保存本地配置失败', e);
+      }
+    }
+
+    function debounce(fn, wait) {
+      let timer = null;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    let titleAbortController = null;
+
+    async function fetchSiteTitle(url) {
+      const target = normalizeUrl(url);
+      if (!target) return;
+      // 如果用户已经填写了名称，不再覆盖
+      if (els.linkName.value.trim()) return;
+
+      if (titleAbortController) titleAbortController.abort();
+      titleAbortController = new AbortController();
+
+      try {
+        const res = await fetch(
+          `https://api.microlink.io?url=${encodeURIComponent(target)}`,
+          { signal: titleAbortController.signal }
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const title = data?.data?.title?.trim();
+        if (title && !els.linkName.value.trim()) {
+          els.linkName.value = title;
+        }
+      } catch (err) {
+        // 忽略网络/CORS/中断错误，静默失败
+        if (err.name !== 'AbortError') {
+          console.warn('自动获取标题失败', err);
+        }
+      }
+    }
+
+    const debouncedFetchTitle = debounce(fetchSiteTitle, 800);
+
+    function normalizeUrl(url) {
+      if (!url) return '';
+      url = url.trim();
+      if (!/^https?:\/\//i.test(url) && !/^ftps?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+      return url;
+    }
+
+    function getDomain(url) {
+      try {
+        return new URL(normalizeUrl(url)).hostname;
+      } catch {
+        return '';
+      }
+    }
+
+    function isEmojiOnly(str) {
+      // 简单判断：若含有非 ASCII 字符且不是 URL，则认为可能是 emoji
+      return /[^\x00-\x7F]/.test(str);
+    }
+
+    function renderIcon(icon, url) {
+      icon = (icon || '').trim();
+      if (icon) {
+        // 用户明确提供了 emoji / 字符，直接显示
+        return `<span>${icon}</span>`;
+      }
+      const domain = getDomain(url);
+      if (domain) {
+        return `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64" alt="icon" loading="lazy" onerror="this.style.display='none';this.parentNode.innerHTML='🌐'" />`;
+      }
+      return '<span>🌐</span>';
+    }
+
+    function showToast(message, type = 'info') {
+      els.toast.textContent = message;
+      els.toast.style.background =
+        type === 'error'
+          ? 'rgba(244, 67, 54, 0.85)'
+          : type === 'success'
+          ? 'rgba(76, 175, 80, 0.85)'
+          : 'rgba(255, 255, 255, 0.15)';
+      els.toast.classList.add('show');
+      setTimeout(() => els.toast.classList.remove('show'), 2200);
+    }
+
+    /* ==================== Clock ==================== */
+    function updateClock() {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      els.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+      els.date.textContent = now.toLocaleDateString('zh-CN', options);
+    }
+
+    /* ==================== Rendering ==================== */
+    function renderGroups() {
+      els.container.innerHTML = '';
+
+      state.groups.forEach((group) => {
+        const groupShortcuts = state.shortcuts.filter((s) => s.groupId === group.id);
+
+        const section = document.createElement('section');
+        section.className = 'group glass';
+
+        const header = document.createElement('div');
+        header.className = 'group-header';
+        header.innerHTML = `
+          <div class="group-title">
+            <span class="group-emoji">${group.emoji || '📁'}</span>
+            <span>${escapeHtml(group.name)}</span>
+          </div>
+          <div class="group-actions">
+            <button class="btn btn-icon" title="在此分组添加快捷" data-action="add-to-group" data-group="${group.id}">＋</button>
+          </div>
+        `;
+
+        const grid = document.createElement('div');
+        grid.className = 'shortcut-grid';
+
+        if (groupShortcuts.length === 0) {
+          grid.innerHTML = `<div class="empty-tip">该分组暂无快捷入口，点击右上角 ＋ 添加</div>`;
+        } else {
+          groupShortcuts.forEach((shortcut) => {
+            const card = document.createElement('a');
+            card.className = 'shortcut-card';
+            card.href = normalizeUrl(shortcut.url);
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
+            card.title = shortcut.name;
+            card.innerHTML = `
+              <div class="icon">${renderIcon(shortcut.icon, shortcut.url)}</div>
+              <div class="name">${escapeHtml(shortcut.name)}</div>
+              <div class="card-actions">
+                <button class="btn btn-icon" title="编辑" data-action="edit" data-id="${shortcut.id}">✎</button>
+                <button class="btn btn-icon" title="删除" data-action="delete" data-id="${shortcut.id}">🗑</button>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        }
+
+        section.appendChild(header);
+        section.appendChild(grid);
+        els.container.appendChild(section);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function populateGroupSelect(selectedId) {
+      els.linkGroup.innerHTML = '';
+      state.groups.forEach((g) => {
+        const option = document.createElement('option');
+        option.value = g.id;
+        option.textContent = `${g.emoji || '📁'} ${g.name}`;
+        if (g.id === selectedId) option.selected = true;
+        els.linkGroup.appendChild(option);
+      });
+    }
+
+    /* ==================== Link Modal Logic ==================== */
+    function openLinkModal(mode = 'add', shortcut = null, groupId = null) {
+      editingLinkId = mode === 'edit' && shortcut ? shortcut.id : null;
+      els.linkModalTitle.textContent = mode === 'edit' ? '编辑快捷入口' : '添加快捷入口';
+      els.linkName.value = shortcut ? shortcut.name : '';
+      els.linkUrl.value = shortcut ? shortcut.url : '';
+      els.linkIcon.value = shortcut ? shortcut.icon : '';
+      populateGroupSelect(groupId || (shortcut ? shortcut.groupId : state.groups[0]?.id));
+      updateIconPreview();
+      els.linkModal.classList.add('active');
+      els.linkName.focus();
+    }
+
+    function closeLinkModal() {
+      els.linkModal.classList.remove('active');
+      editingLinkId = null;
+    }
+
+    function updateIconPreview() {
+      const icon = els.linkIcon.value;
+      const url = els.linkUrl.value;
+      els.iconPreview.innerHTML = renderIcon(icon, url);
+    }
+
+    function saveLink() {
+      const name = els.linkName.value.trim();
+      let url = els.linkUrl.value.trim();
+      const icon = els.linkIcon.value.trim();
+      const groupId = els.linkGroup.value;
+
+      if (!name) {
+        showToast('请输入网站名称', 'error');
+        return;
+      }
+      if (!url) {
+        showToast('请输入网站地址', 'error');
+        return;
+      }
+      if (!groupId || !state.groups.find((g) => g.id === groupId)) {
+        showToast('请选择有效的分组', 'error');
+        return;
+      }
+
+      url = normalizeUrl(url);
+
+      if (editingLinkId) {
+        const idx = state.shortcuts.findIndex((s) => s.id === editingLinkId);
+        if (idx !== -1) {
+          state.shortcuts[idx] = { ...state.shortcuts[idx], name, url, icon, groupId };
+          showToast('快捷入口已更新', 'success');
+        }
+      } else {
+        state.shortcuts.push({ id: generateId('s'), name, url, icon, groupId });
+        showToast('快捷入口已添加', 'success');
+      }
+
+      saveData();
+      renderGroups();
+      closeLinkModal();
+    }
+
+    function deleteLink(id) {
+      if (!confirm('确定要删除这个快捷入口吗？')) return;
+      state.shortcuts = state.shortcuts.filter((s) => s.id !== id);
+      saveData();
+      renderGroups();
+      showToast('已删除', 'success');
+    }
+
+    /* ==================== Groups Modal Logic ==================== */
+    function renderGroupsManagement() {
+      els.groupsList.innerHTML = '';
+      if (state.groups.length === 0) {
+        els.groupsList.innerHTML = '<div class="empty-tip">暂无分组</div>';
+        return;
+      }
+      state.groups.forEach((g) => {
+        const count = state.shortcuts.filter((s) => s.groupId === g.id).length;
+        const row = document.createElement('div');
+        row.className = 'glass';
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:14px;';
+        row.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+            <span style="font-size:1.2rem;">${g.emoji || '📁'}</span>
+            <input type="text" value="${escapeHtml(g.name)}" data-field="name" data-group="${g.id}" style="flex:1;min-width:0;background:transparent;border:none;color:#fff;font-size:0.95rem;outline:none;border-bottom:1px solid rgba(255,255,255,0.1);" />
+            <input type="text" value="${g.emoji || ''}" data-field="emoji" data-group="${g.id}" style="width:46px;text-align:center;background:transparent;border:none;color:#fff;font-size:1.1rem;outline:none;border-bottom:1px solid rgba(255,255,255,0.1);" maxlength="2" />
+            <span style="font-size:0.75rem;opacity:0.6;white-space:nowrap;">${count} 个</span>
+          </div>
+          <button class="btn btn-danger" data-action="delete-group" data-group="${g.id}" style="margin-left:10px;padding:6px 12px;font-size:0.8rem;">删除</button>
+        `;
+        els.groupsList.appendChild(row);
+      });
+    }
+
+    function openGroupsModal() {
+      renderGroupsManagement();
+      els.groupsModal.classList.add('active');
+    }
+
+    function closeGroupsModal() {
+      els.groupsModal.classList.remove('active');
+    }
+
+    function createGroup() {
+      const name = els.newGroupName.value.trim();
+      const emoji = els.newGroupEmoji.value.trim();
+      if (!name) {
+        showToast('请输入分组名称', 'error');
+        return;
+      }
+      state.groups.push({ id: generateId('g'), name, emoji });
+      saveData();
+      renderGroups();
+      renderGroupsManagement();
+      els.newGroupName.value = '';
+      els.newGroupEmoji.value = '';
+      showToast('分组已创建', 'success');
+    }
+
+    function updateGroup(id, field, value) {
+      const group = state.groups.find((g) => g.id === id);
+      if (!group) return;
+      group[field] = value;
+      saveData();
+      renderGroups();
+    }
+
+    function deleteGroup(id) {
+      const count = state.shortcuts.filter((s) => s.groupId === id).length;
+      const msg = count > 0 ? `该分组下还有 ${count} 个快捷入口，删除后会一并移除。确定删除吗？` : '确定要删除这个分组吗？';
+      if (!confirm(msg)) return;
+      state.groups = state.groups.filter((g) => g.id !== id);
+      state.shortcuts = state.shortcuts.filter((s) => s.groupId !== id);
+      saveData();
+      renderGroups();
+      renderGroupsManagement();
+      showToast('分组已删除', 'success');
+    }
+
+    function resetData() {
+      if (!confirm('确定要恢复默认数据吗？所有自定义分组和快捷入口将被覆盖。')) return;
+      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      saveData();
+      renderGroups();
+      showToast('已恢复默认数据', 'success');
+    }
+
+    /* ==================== Search ==================== */
+    function handleSearch(e) {
+      if (e.key !== 'Enter') return;
+      const q = els.searchInput.value.trim();
+      if (!q) return;
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
+      els.searchInput.value = '';
+    }
+
+    /* ==================== Event Bindings ==================== */
+    function bindEvents() {
+      // Header buttons
+      els.btnAddLink.addEventListener('click', () => openLinkModal('add'));
+      els.btnManageGroups.addEventListener('click', openGroupsModal);
+      els.btnReset.addEventListener('click', resetData);
+
+      // Link modal
+      els.btnLinkCancel.addEventListener('click', closeLinkModal);
+      els.btnLinkSave.addEventListener('click', saveLink);
+      els.linkIcon.addEventListener('input', updateIconPreview);
+      els.linkUrl.addEventListener('input', () => {
+        updateIconPreview();
+        debouncedFetchTitle(els.linkUrl.value);
+      });
+      // 失焦时若仍未获取到标题，立即再尝试一次
+      els.linkUrl.addEventListener('blur', () => {
+        fetchSiteTitle(els.linkUrl.value);
+      });
+
+      // Groups modal
+      els.btnGroupsClose.addEventListener('click', closeGroupsModal);
+      els.btnCreateGroup.addEventListener('click', createGroup);
+
+      // Group inline editing & deletion
+      els.groupsList.addEventListener('input', (e) => {
+        const target = e.target;
+        if (!target.dataset.group) return;
+        updateGroup(target.dataset.group, target.dataset.field, target.value.trim());
+      });
+      els.groupsList.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="delete-group"]');
+        if (btn) deleteGroup(btn.dataset.group);
+      });
+
+      // Delegated shortcut actions (edit / delete / add-to-group)
+      els.container.addEventListener('click', (e) => {
+        const btn = e.target.closest('button, .shortcut-card');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        if (!action) return;
+
+        if (action === 'add-to-group') {
+          openLinkModal('add', null, btn.dataset.group);
+          return;
+        }
+
+        const id = btn.dataset.id;
+        if (action === 'edit') {
+          e.preventDefault();
+          e.stopPropagation();
+          const shortcut = state.shortcuts.find((s) => s.id === id);
+          if (shortcut) openLinkModal('edit', shortcut);
+        } else if (action === 'delete') {
+          e.preventDefault();
+          e.stopPropagation();
+          deleteLink(id);
+        }
+      });
+
+      // Search
+      els.searchInput.addEventListener('keydown', handleSearch);
+
+      // Close modals on overlay click
+      document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) overlay.classList.remove('active');
+        });
+      });
+
+      // Close modals on Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeLinkModal();
+          closeGroupsModal();
+        }
+      });
+    }
+
+    /* ==================== Init ==================== */
+    function init() {
+      loadData();
+      renderGroups();
+      updateClock();
+      setInterval(updateClock, 1000);
+      bindEvents();
+      // 页面加载后自动聚焦搜索框，可直接打字
+      els.searchInput.focus();
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+services:
+  chrome-homepage:
+    image: nginx:alpine
+    container_name: chrome-homepage
+    ports:
+      - "4000:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+    restart: unless-stopped
