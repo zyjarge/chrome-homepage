@@ -72,6 +72,11 @@ chrome-homepage/
 
 所有分组和快捷入口数据保存在浏览器本地存储中。首次打开会加载内置的默认数据，可通过右上角的 **重置** 按钮恢复默认。
 
+## 👥 Contributors
+
+- [@zyjarge](https://github.com/zyjarge) — 项目作者
+- [Moonshot AI](https://www.moonshot.cn/) — 本项目在 Kimi（Moonshot AI）的辅助下完成
+
 ## 📄 License
 
 MIT
