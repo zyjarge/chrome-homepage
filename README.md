@@ -75,7 +75,7 @@ chrome-homepage/
 ## 👥 Contributors
 
 - [@zyjarge](https://github.com/zyjarge) — 项目作者
-- [Moonshot AI](https://www.moonshot.cn/) — 本项目在 Kimi（Moonshot AI）的辅助下完成
+- [Moonshot AI](https://github.com/MoonshotAI) — 本项目在 Kimi（Moonshot AI）的辅助下完成
 
 ## 📄 License
 
