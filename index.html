@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:," />
   <title>Glass New Tab</title>
   <style>
     /* ==================== CSS Reset & Base ==================== */
@@ -19,17 +20,16 @@
       height: 100%;
       width: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #ffffff;
+      color: #1e2430;
       overflow-x: hidden;
     }
 
-    /* 高级渐变背景：深蓝 / 紫 / 粉交织 */
+    /* 明亮柔和的浅色背景 */
     body {
       background:
-        radial-gradient(circle at 15% 20%, rgba(92, 37, 141, 0.9) 0%, transparent 35%),
-        radial-gradient(circle at 85% 15%, rgba(255, 88, 154, 0.7) 0%, transparent 30%),
-        radial-gradient(circle at 50% 80%, rgba(48, 67, 175, 0.9) 0%, transparent 40%),
-        linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.9) 0%, transparent 40%),
+        radial-gradient(circle at 80% 100%, rgba(222, 232, 240, 0.7) 0%, transparent 45%),
+        linear-gradient(135deg, #f5f8fa 0%, #edf1f5 50%, #e8edf2 100%);
       background-attachment: fixed;
       min-height: 100vh;
       display: flex;
@@ -40,11 +40,68 @@
 
     /* ==================== Utility: Glass Card ==================== */
     .glass {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 24px rgba(30, 36, 48, 0.06), 0 2px 6px rgba(30, 36, 48, 0.04);
+    }
+
+    /* ==================== Theme Variables & Presets ==================== */
+    :root {
+      --accent-work: #3b82f6;
+      --accent-ent: #ec4899;
+      --accent-learn: #10b981;
+      --accent-primary: #1a2233;
+      --accent-primary-hover: #252f45;
+    }
+
+    body[data-theme='ocean'] {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.1) 0%, transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 30%),
+        radial-gradient(circle at 70% 85%, rgba(245, 158, 11, 0.06) 0%, transparent 35%),
+        linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
+    }
+
+    body[data-theme='ocean'] {
+      --accent-work: #2563eb;
+      --accent-ent: #06b6d4;
+      --accent-learn: #f59e0b;
+      --accent-primary: #2563eb;
+      --accent-primary-hover: #1d4ed8;
+    }
+
+    body[data-theme='warm'] {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.1) 0%, transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(236, 72, 153, 0.08) 0%, transparent 30%),
+        radial-gradient(circle at 70% 85%, rgba(139, 92, 246, 0.07) 0%, transparent 35%),
+        linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+    }
+
+    body[data-theme='warm'] {
+      --accent-work: #f97316;
+      --accent-ent: #ec4899;
+      --accent-learn: #8b5cf6;
+      --accent-primary: #ea580c;
+      --accent-primary-hover: #c2410c;
+    }
+
+    body[data-theme='morandi'] {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(91, 127, 255, 0.08) 0%, transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(244, 114, 182, 0.07) 0%, transparent 30%),
+        radial-gradient(circle at 70% 85%, rgba(52, 211, 153, 0.08) 0%, transparent 35%),
+        linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
+    }
+
+    body[data-theme='morandi'] {
+      --accent-work: #5b7fff;
+      --accent-ent: #f472b6;
+      --accent-learn: #34d399;
+      --accent-primary: linear-gradient(135deg, #5b7fff, #a78bfa);
+      --accent-primary-hover: linear-gradient(135deg, #4a6aff, #9377f8);
     }
 
     /* ==================== Header: Time / Date / Controls ==================== */
@@ -71,12 +128,12 @@
       font-size: 2.4rem;
       font-weight: 700;
       letter-spacing: 0.5px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      color: #1a2233;
     }
 
     #date {
       font-size: 0.95rem;
-      opacity: 0.85;
+      color: #5b6572;
     }
 
     .header-actions {
@@ -96,18 +153,18 @@
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      color: #1e2430;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(226, 232, 238, 0.9);
+      box-shadow: 0 2px 8px rgba(30, 36, 48, 0.06);
       transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
       user-select: none;
     }
 
     .btn:hover {
-      background: rgba(255, 255, 255, 0.22);
+      background: #ffffff;
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 6px 16px rgba(30, 36, 48, 0.1);
     }
 
     .btn:active {
@@ -115,20 +172,24 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, rgba(255, 88, 154, 0.8), rgba(140, 58, 250, 0.8));
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: var(--accent-primary, #1a2233);
+      border: 1px solid transparent;
+      color: #ffffff;
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, rgba(255, 88, 154, 0.95), rgba(140, 58, 250, 0.95));
+      background: var(--accent-primary-hover, #252f45);
     }
 
     .btn-danger {
-      background: rgba(244, 67, 54, 0.75);
+      background: rgba(244, 67, 54, 0.9);
+      color: #ffffff;
+      border-color: rgba(244, 67, 54, 0.9);
     }
 
     .btn-danger:hover {
-      background: rgba(244, 67, 54, 0.9);
+      background: #d32f2f;
+      border-color: #d32f2f;
     }
 
     .btn-icon {
@@ -137,6 +198,24 @@
       padding: 0;
       border-radius: 50%;
       font-size: 1.1rem;
+    }
+
+    .theme-select {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(226, 232, 238, 0.9);
+      background: rgba(255, 255, 255, 0.85);
+      color: #1e2430;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 2px 8px rgba(30, 36, 48, 0.06);
+    }
+
+    .theme-select:hover {
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(30, 36, 48, 0.1);
     }
 
     /* ==================== Search Bar ==================== */
@@ -156,16 +235,16 @@
       background: transparent;
       border: none;
       outline: none;
-      color: #fff;
+      color: #1e2430;
       font-size: 1.05rem;
     }
 
     .search-bar input::placeholder {
-      color: rgba(255, 255, 255, 0.55);
+      color: #98a2ad;
     }
 
     .search-bar .search-icon {
-      opacity: 0.7;
+      color: #5b6572;
       font-size: 1.1rem;
     }
 
@@ -181,9 +260,21 @@
 
     /* ==================== Group Section ==================== */
     .group {
+      position: relative;
+      overflow: hidden;
       border-radius: 20px;
       padding: 18px;
       min-width: 0;
+    }
+
+    .group::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent, transparent), transparent);
     }
 
     .group-header {
@@ -203,8 +294,9 @@
       font-weight: 700;
       padding: 6px 10px;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #1e2430;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(226, 232, 238, 0.9);
     }
 
     .group-title .group-emoji {
@@ -240,12 +332,12 @@
       padding: 10px 4px;
       border-radius: 14px;
       text-decoration: none;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+      color: #1e2430;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(226, 232, 238, 0.85);
+      box-shadow: 0 4px 14px rgba(30, 36, 48, 0.05);
       transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
         background 0.25s ease,
         box-shadow 0.25s ease;
@@ -256,8 +348,8 @@
 
     .shortcut-card:hover {
       transform: translateY(-4px) scale(1.03);
-      background: rgba(255, 255, 255, 0.18);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 12px rgba(255, 255, 255, 0.12);
+      background: #ffffff;
+      box-shadow: 0 12px 28px rgba(30, 36, 48, 0.12);
     }
 
     .shortcut-card .icon {
@@ -267,7 +359,7 @@
       align-items: center;
       justify-content: center;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.12);
+      background: #f0f3f6;
       font-size: 1.15rem;
       overflow: hidden;
       flex-shrink: 0;
@@ -314,12 +406,14 @@
       width: 22px;
       height: 22px;
       font-size: 0.75rem;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.95);
+      color: #1e2430;
+      border: 1px solid rgba(226, 232, 238, 0.9);
+      box-shadow: 0 2px 6px rgba(30, 36, 48, 0.08);
     }
 
     .card-actions .btn-icon:hover {
-      background: rgba(0, 0, 0, 0.55);
+      background: #ffffff;
     }
 
     /* ==================== Empty State ==================== */
@@ -339,7 +433,7 @@
       align-items: center;
       justify-content: center;
       padding: 16px;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(30, 36, 48, 0.35);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
       opacity: 0;
@@ -390,9 +484,9 @@
       width: 100%;
       padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(0, 0, 0, 0.2);
-      color: #fff;
+      border: 1px solid #dfe5ea;
+      background: #f7f9fb;
+      color: #1e2430;
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -400,12 +494,12 @@
 
     .form-group input:focus,
     .form-group select:focus {
-      border-color: rgba(255, 255, 255, 0.45);
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+      border-color: #1a2233;
+      box-shadow: 0 0 0 3px rgba(26, 34, 51, 0.08);
     }
 
     .form-group input::placeholder {
-      color: rgba(255, 255, 255, 0.4);
+      color: #98a2ad;
     }
 
     .form-row {
@@ -430,8 +524,8 @@
       align-items: center;
       justify-content: center;
       font-size: 2rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: #f0f3f6;
+      border: 1px solid #dfe5ea;
       margin-bottom: 12px;
       overflow: hidden;
     }
@@ -516,6 +610,12 @@
       <div id="date">载入中...</div>
     </div>
     <div class="header-actions">
+      <select id="theme-select" class="theme-select" title="配色方案">
+        <option value="default">默认浅色</option>
+        <option value="ocean">清新海洋</option>
+        <option value="warm">柔和暖调</option>
+        <option value="morandi">莫兰迪多色</option>
+      </select>
       <button class="btn" id="btn-manage-groups" title="管理分组">
         <span>📁</span> 管理分组
       </button>
@@ -605,6 +705,7 @@
   <script>
     /* ==================== Constants & Default Data ==================== */
     const STORAGE_KEY = 'glass-new-tab-data-v1';
+    const THEME_KEY = 'glass-new-tab-theme';
 
     // 内置初始数据：工作 / 娱乐 / 学习
     const DEFAULT_DATA = {
@@ -655,7 +756,8 @@
       btnManageGroups: document.getElementById('btn-manage-groups'),
       btnGroupsClose: document.getElementById('btn-groups-close'),
       btnCreateGroup: document.getElementById('btn-create-group'),
-      btnReset: document.getElementById('btn-reset')
+      btnReset: document.getElementById('btn-reset'),
+      themeSelect: document.getElementById('theme-select')
     };
 
     /* ==================== Helpers ==================== */
@@ -694,6 +796,32 @@
         clearTimeout(timer);
         timer = setTimeout(() => fn(...args), wait);
       };
+    }
+
+    /* ==================== Theme ==================== */
+    function applyTheme(theme) {
+      document.body.dataset.theme = theme || 'default';
+      try {
+        localStorage.setItem(THEME_KEY, theme);
+      } catch (e) {
+        console.warn('保存主题失败', e);
+      }
+    }
+
+    function loadTheme() {
+      try {
+        return localStorage.getItem(THEME_KEY) || 'default';
+      } catch {
+        return 'default';
+      }
+    }
+
+    const GROUP_ACCENT_KEYS = ['--accent-work', '--accent-ent', '--accent-learn'];
+
+    function getGroupAccent(index) {
+      const key = GROUP_ACCENT_KEYS[index % GROUP_ACCENT_KEYS.length];
+      const value = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
+      return value || '#3b82f6';
     }
 
     let titleAbortController = null;
@@ -765,12 +893,16 @@
 
     function showToast(message, type = 'info') {
       els.toast.textContent = message;
-      els.toast.style.background =
-        type === 'error'
-          ? 'rgba(244, 67, 54, 0.85)'
-          : type === 'success'
-          ? 'rgba(76, 175, 80, 0.85)'
-          : 'rgba(255, 255, 255, 0.15)';
+      if (type === 'error') {
+        els.toast.style.background = 'rgba(244, 67, 54, 0.95)';
+        els.toast.style.color = '#ffffff';
+      } else if (type === 'success') {
+        els.toast.style.background = 'rgba(76, 175, 80, 0.95)';
+        els.toast.style.color = '#ffffff';
+      } else {
+        els.toast.style.background = 'rgba(26, 34, 51, 0.92)';
+        els.toast.style.color = '#ffffff';
+      }
       els.toast.classList.add('show');
       setTimeout(() => els.toast.classList.remove('show'), 2200);
     }
@@ -788,11 +920,12 @@
     function renderGroups() {
       els.container.innerHTML = '';
 
-      state.groups.forEach((group) => {
+      state.groups.forEach((group, index) => {
         const groupShortcuts = state.shortcuts.filter((s) => s.groupId === group.id);
 
         const section = document.createElement('section');
         section.className = 'group glass';
+        section.style.setProperty('--accent', getGroupAccent(index));
 
         const header = document.createElement('div');
         header.className = 'group-header';
@@ -941,8 +1074,8 @@
         row.innerHTML = `
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
             <span style="font-size:1.2rem;">${g.emoji || '📁'}</span>
-            <input type="text" value="${escapeHtml(g.name)}" data-field="name" data-group="${g.id}" style="flex:1;min-width:0;background:transparent;border:none;color:#fff;font-size:0.95rem;outline:none;border-bottom:1px solid rgba(255,255,255,0.1);" />
-            <input type="text" value="${g.emoji || ''}" data-field="emoji" data-group="${g.id}" style="width:46px;text-align:center;background:transparent;border:none;color:#fff;font-size:1.1rem;outline:none;border-bottom:1px solid rgba(255,255,255,0.1);" maxlength="2" />
+            <input type="text" value="${escapeHtml(g.name)}" data-field="name" data-group="${g.id}" style="flex:1;min-width:0;background:transparent;border:none;color:#1e2430;font-size:0.95rem;outline:none;border-bottom:1px solid rgba(30,36,48,0.12);" />
+            <input type="text" value="${g.emoji || ''}" data-field="emoji" data-group="${g.id}" style="width:46px;text-align:center;background:transparent;border:none;color:#1e2430;font-size:1.1rem;outline:none;border-bottom:1px solid rgba(30,36,48,0.12);" maxlength="2" />
             <span style="font-size:0.75rem;opacity:0.6;white-space:nowrap;">${count} 个</span>
           </div>
           <button class="btn btn-danger" data-action="delete-group" data-group="${g.id}" style="margin-left:10px;padding:6px 12px;font-size:0.8rem;">删除</button>
@@ -1020,6 +1153,13 @@
       els.btnManageGroups.addEventListener('click', openGroupsModal);
       els.btnReset.addEventListener('click', resetData);
 
+      // Theme selector
+      els.themeSelect.addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+        renderGroups();
+        showToast('配色方案已切换', 'success');
+      });
+
       // Link modal
       els.btnLinkCancel.addEventListener('click', closeLinkModal);
       els.btnLinkSave.addEventListener('click', saveLink);
@@ -1094,6 +1234,9 @@
 
     /* ==================== Init ==================== */
     function init() {
+      const theme = loadTheme();
+      applyTheme(theme);
+      els.themeSelect.value = theme;
       loadData();
       renderGroups();
       updateClock();

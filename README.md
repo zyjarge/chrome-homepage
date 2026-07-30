@@ -28,6 +28,10 @@
 确保已安装 Docker 和 Docker Compose。
 
 ```bash
+# 构建压缩产物（生成 dist/index.html）
+cd tools && npm install && cd ..
+node tools/minify.mjs
+
 docker compose up -d
 ```
 
@@ -60,12 +64,29 @@ http://localhost:4000
 
 ```
 chrome-homepage/
-├── index.html              # 主页面（HTML + CSS + JS）
+├── index.html              # 主页面源码（HTML + CSS + JS，保持可读）
+├── dist/index.html         # 构建产物（minify 后由 nginx 提供服务，勿手改）
+├── nginx.conf              # nginx 站点配置（开启 gzip 压缩）
 ├── docker-compose.yml      # Docker Compose 配置
+├── tools/                  # 构建与性能测试脚本
+│   ├── minify.mjs          # 压缩 index.html -> dist/index.html
+│   └── bench.mjs           # 弱网环境下的加载性能基准测试
 ├── chrome-extension/       # Chrome 新标签页扩展
 │   ├── manifest.json
 │   └── redirect.html
 └── README.md
+```
+
+## ⚡ 性能优化
+
+- **Minify 构建**：`index.html` 保持可读源码，`node tools/minify.mjs` 生成压缩产物到 `dist/`，Docker 挂载的是产物
+- **gzip 压缩**：`nginx.conf` 开启 gzip，文本资源传输体积约降低 80%
+- **内联空 favicon**：消除浏览器自动请求 `/favicon.ico` 产生的 404 往返
+
+性能对比（模拟弱网 150ms RTT / 1.6Mbps，无缓存，5 轮均值）可用基准脚本复测：
+
+```bash
+node tools/bench.mjs
 ```
 
 ## 📝 数据说明
