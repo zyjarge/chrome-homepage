@@ -277,6 +277,11 @@
       background: linear-gradient(90deg, var(--accent, transparent), transparent);
     }
 
+    .group.drag-over {
+      outline: 2px dashed var(--accent, #3b82f6);
+      outline-offset: -2px;
+    }
+
     .group-header {
       display: flex;
       align-items: center;
@@ -342,7 +347,7 @@
         background 0.25s ease,
         box-shadow 0.25s ease;
       overflow: hidden;
-      cursor: pointer;
+      cursor: grab;
       min-width: 0;
     }
 
@@ -350,6 +355,12 @@
       transform: translateY(-4px) scale(1.03);
       background: #ffffff;
       box-shadow: 0 12px 28px rgba(30, 36, 48, 0.12);
+    }
+
+    .shortcut-card.dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+      cursor: grabbing;
     }
 
     .shortcut-card .icon {
@@ -383,7 +394,7 @@
       padding: 0 2px;
     }
 
-    /* 卡片悬浮时显示编辑 / 删除按钮 */
+    /* 编辑 / 删除按钮仅在编辑模式下显示 */
     .card-actions {
       position: absolute;
       top: 4px;
@@ -396,7 +407,7 @@
       pointer-events: none;
     }
 
-    .shortcut-card:hover .card-actions {
+    body.edit-mode .card-actions {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
@@ -414,6 +425,32 @@
 
     .card-actions .btn-icon:hover {
       background: #ffffff;
+    }
+
+    /* 编辑模式控制 */
+    .edit-only {
+      display: none !important;
+    }
+
+    body.edit-mode .edit-only {
+      display: inline-flex !important;
+    }
+
+    body.edit-mode .group-actions.edit-only {
+      display: flex !important;
+    }
+
+    body.edit-mode .shortcut-card {
+      animation: wiggle 0.25s ease-in-out infinite alternate;
+    }
+
+    @keyframes wiggle {
+      from {
+        transform: rotate(-0.6deg);
+      }
+      to {
+        transform: rotate(0.6deg);
+      }
     }
 
     /* ==================== Empty State ==================== */
@@ -616,13 +653,16 @@
         <option value="warm">柔和暖调</option>
         <option value="morandi">莫兰迪多色</option>
       </select>
-      <button class="btn" id="btn-manage-groups" title="管理分组">
+      <button class="btn" id="btn-edit-mode" title="编辑模式">
+        <span>✏️</span> 编辑
+      </button>
+      <button class="btn edit-only" id="btn-manage-groups" title="管理分组">
         <span>📁</span> 管理分组
       </button>
-      <button class="btn btn-primary" id="btn-add-link" title="添加快捷入口">
+      <button class="btn btn-primary edit-only" id="btn-add-link" title="添加快捷入口">
         <span>＋</span> 添加快捷
       </button>
-      <button class="btn" id="btn-reset" title="恢复默认数据">
+      <button class="btn edit-only" id="btn-reset" title="恢复默认数据">
         <span>↺</span> 重置
       </button>
     </div>
@@ -731,6 +771,7 @@
     /* ==================== State ==================== */
     let state = { groups: [], shortcuts: [] };
     let editingLinkId = null;
+    let editMode = false;
 
     /* ==================== DOM References ==================== */
     const els = {
@@ -757,7 +798,8 @@
       btnGroupsClose: document.getElementById('btn-groups-close'),
       btnCreateGroup: document.getElementById('btn-create-group'),
       btnReset: document.getElementById('btn-reset'),
-      themeSelect: document.getElementById('theme-select')
+      themeSelect: document.getElementById('theme-select'),
+      btnEditMode: document.getElementById('btn-edit-mode')
     };
 
     /* ==================== Helpers ==================== */
@@ -822,6 +864,17 @@
       const key = GROUP_ACCENT_KEYS[index % GROUP_ACCENT_KEYS.length];
       const value = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
       return value || '#3b82f6';
+    }
+
+    function toggleEditMode() {
+      editMode = !editMode;
+      document.body.classList.toggle('edit-mode', editMode);
+      els.btnEditMode.innerHTML = editMode
+        ? '<span>✅</span> 完成'
+        : '<span>✏️</span> 编辑';
+      els.btnEditMode.classList.toggle('btn-primary', editMode);
+      renderGroups();
+      showToast(editMode ? '已进入编辑模式' : '已退出编辑模式', 'info');
     }
 
     let titleAbortController = null;
@@ -925,6 +978,7 @@
 
         const section = document.createElement('section');
         section.className = 'group glass';
+        section.dataset.groupId = group.id;
         section.style.setProperty('--accent', getGroupAccent(index));
 
         const header = document.createElement('div');
@@ -934,7 +988,7 @@
             <span class="group-emoji">${group.emoji || '📁'}</span>
             <span>${escapeHtml(group.name)}</span>
           </div>
-          <div class="group-actions">
+          <div class="group-actions edit-only">
             <button class="btn btn-icon" title="在此分组添加快捷" data-action="add-to-group" data-group="${group.id}">＋</button>
           </div>
         `;
@@ -952,6 +1006,8 @@
             card.target = '_blank';
             card.rel = 'noopener noreferrer';
             card.title = shortcut.name;
+            card.draggable = editMode;
+            card.dataset.id = shortcut.id;
             card.innerHTML = `
               <div class="icon">${renderIcon(shortcut.icon, shortcut.url)}</div>
               <div class="name">${escapeHtml(shortcut.name)}</div>
@@ -1152,6 +1208,7 @@
       els.btnAddLink.addEventListener('click', () => openLinkModal('add'));
       els.btnManageGroups.addEventListener('click', openGroupsModal);
       els.btnReset.addEventListener('click', resetData);
+      els.btnEditMode.addEventListener('click', toggleEditMode);
 
       // Theme selector
       els.themeSelect.addEventListener('change', (e) => {
@@ -1196,21 +1253,88 @@
         if (!action) return;
 
         if (action === 'add-to-group') {
+          if (!editMode) return;
           openLinkModal('add', null, btn.dataset.group);
           return;
         }
 
         const id = btn.dataset.id;
         if (action === 'edit') {
+          if (!editMode) return;
           e.preventDefault();
           e.stopPropagation();
           const shortcut = state.shortcuts.find((s) => s.id === id);
           if (shortcut) openLinkModal('edit', shortcut);
         } else if (action === 'delete') {
+          if (!editMode) return;
           e.preventDefault();
           e.stopPropagation();
           deleteLink(id);
         }
+      });
+
+      // Drag & Drop: move shortcut between groups
+      els.container.addEventListener('dragstart', (e) => {
+        const card = e.target.closest('.shortcut-card');
+        if (!card) return;
+        // 非编辑模式下禁止拖拽
+        if (!editMode) {
+          e.preventDefault();
+          return;
+        }
+        // 避免拖拽编辑/删除按钮
+        if (e.target.closest('button')) {
+          e.preventDefault();
+          return;
+        }
+        e.dataTransfer.setData('text/plain', card.dataset.id);
+        e.dataTransfer.effectAllowed = 'move';
+        card.classList.add('dragging');
+      });
+
+      els.container.addEventListener('dragend', (e) => {
+        const card = e.target.closest('.shortcut-card');
+        if (card) card.classList.remove('dragging');
+        document.querySelectorAll('.group.drag-over').forEach((g) => g.classList.remove('drag-over'));
+      });
+
+      els.container.addEventListener('dragover', (e) => {
+        const groupEl = e.target.closest('.group');
+        if (!groupEl) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.group.drag-over').forEach((g) => {
+          if (g !== groupEl) g.classList.remove('drag-over');
+        });
+        groupEl.classList.add('drag-over');
+      });
+
+      els.container.addEventListener('dragleave', (e) => {
+        const groupEl = e.target.closest('.group');
+        if (!groupEl) return;
+        // 只有当离开 group 本身时才移除高亮
+        if (!groupEl.contains(e.relatedTarget)) {
+          groupEl.classList.remove('drag-over');
+        }
+      });
+
+      els.container.addEventListener('drop', (e) => {
+        const groupEl = e.target.closest('.group');
+        if (!groupEl) return;
+        e.preventDefault();
+        groupEl.classList.remove('drag-over');
+
+        const id = e.dataTransfer.getData('text/plain');
+        const targetGroupId = groupEl.dataset.groupId;
+        if (!id || !targetGroupId) return;
+
+        const shortcut = state.shortcuts.find((s) => s.id === id);
+        if (!shortcut || shortcut.groupId === targetGroupId) return;
+
+        shortcut.groupId = targetGroupId;
+        saveData();
+        renderGroups();
+        showToast('已移动到新分组', 'success');
       });
 
       // Search
