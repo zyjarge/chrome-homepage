@@ -665,6 +665,13 @@
       <button class="btn edit-only" id="btn-reset" title="恢复默认数据">
         <span>↺</span> 重置
       </button>
+      <button class="btn edit-only" id="btn-export" title="导出全部配置">
+        <span>⬇</span> 导出
+      </button>
+      <button class="btn edit-only" id="btn-import" title="导入配置">
+        <span>⬆</span> 导入
+      </button>
+      <input type="file" id="import-file" accept="application/json" style="display:none" />
     </div>
   </header>
 
@@ -799,7 +806,10 @@
       btnCreateGroup: document.getElementById('btn-create-group'),
       btnReset: document.getElementById('btn-reset'),
       themeSelect: document.getElementById('theme-select'),
-      btnEditMode: document.getElementById('btn-edit-mode')
+      btnEditMode: document.getElementById('btn-edit-mode'),
+      btnExport: document.getElementById('btn-export'),
+      btnImport: document.getElementById('btn-import'),
+      importFile: document.getElementById('import-file')
     };
 
     /* ==================== Helpers ==================== */
@@ -1193,6 +1203,85 @@
       showToast('已恢复默认数据', 'success');
     }
 
+    /* ==================== Export / Import ==================== */
+    function exportConfig() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        theme: loadTheme(),
+        groups: state.groups,
+        shortcuts: state.shortcuts
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `glass-new-tab-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('配置已导出', 'success');
+    }
+
+    function validateImportData(data) {
+      if (!data || typeof data !== 'object') return '文件格式不正确';
+      if (!Array.isArray(data.groups) || !Array.isArray(data.shortcuts)) return '缺少分组或快捷入口数据';
+
+      const groupIds = new Set();
+      for (const g of data.groups) {
+        if (!g || typeof g.id !== 'string' || typeof g.name !== 'string') return '分组数据格式不正确';
+        groupIds.add(g.id);
+      }
+      for (const s of data.shortcuts) {
+        if (!s || typeof s.id !== 'string' || typeof s.name !== 'string' || typeof s.url !== 'string' || typeof s.groupId !== 'string') {
+          return '快捷入口数据格式不正确';
+        }
+      }
+      return null;
+    }
+
+    function handleImportFile(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const error = validateImportData(data);
+          if (error) {
+            showToast(`导入失败：${error}`, 'error');
+            return;
+          }
+
+          if (!confirm('导入将覆盖当前所有分组、快捷入口和配色方案，确定继续吗？')) return;
+
+          // 修复快捷方式中不存在的 groupId，统一挂到第一个分组
+          const fallbackGroupId = data.groups[0]?.id;
+          data.shortcuts.forEach((s) => {
+            if (!data.groups.find((g) => g.id === s.groupId)) {
+              s.groupId = fallbackGroupId;
+            }
+          });
+
+          state.groups = data.groups;
+          state.shortcuts = data.shortcuts;
+          saveData();
+
+          if (typeof data.theme === 'string') {
+            applyTheme(data.theme);
+            els.themeSelect.value = data.theme;
+          }
+
+          renderGroups();
+          showToast('配置已导入', 'success');
+        } catch (err) {
+          showToast('导入失败：不是有效的 JSON 文件', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
     /* ==================== Search ==================== */
     function handleSearch(e) {
       if (e.key !== 'Enter') return;
@@ -1209,6 +1298,12 @@
       els.btnManageGroups.addEventListener('click', openGroupsModal);
       els.btnReset.addEventListener('click', resetData);
       els.btnEditMode.addEventListener('click', toggleEditMode);
+      els.btnExport.addEventListener('click', exportConfig);
+      els.btnImport.addEventListener('click', () => els.importFile.click());
+      els.importFile.addEventListener('change', (e) => {
+        handleImportFile(e.target.files[0]);
+        e.target.value = '';
+      });
 
       // Theme selector
       els.themeSelect.addEventListener('change', (e) => {
