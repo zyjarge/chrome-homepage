@@ -1,1471 +1,754 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="data:," />
-  <title>Glass New Tab</title>
-  <style>
-    /* ==================== CSS Reset & Base ==================== */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html,
-    body {
-      height: 100%;
-      width: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #1e2430;
-      overflow-x: hidden;
-    }
-
-    /* 明亮柔和的浅色背景 */
-    body {
-      background:
-        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.9) 0%, transparent 40%),
-        radial-gradient(circle at 80% 100%, rgba(222, 232, 240, 0.7) 0%, transparent 45%),
-        linear-gradient(135deg, #f5f8fa 0%, #edf1f5 50%, #e8edf2 100%);
-      background-attachment: fixed;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 32px 24px 64px;
-    }
-
-    /* ==================== Utility: Glass Card ==================== */
-    .glass {
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.95);
-      box-shadow: 0 8px 24px rgba(30, 36, 48, 0.06), 0 2px 6px rgba(30, 36, 48, 0.04);
-    }
-
-    /* ==================== Theme Variables & Presets ==================== */
-    :root {
-      --accent-work: #3b82f6;
-      --accent-ent: #ec4899;
-      --accent-learn: #10b981;
-      --accent-primary: #1a2233;
-      --accent-primary-hover: #252f45;
-    }
-
-    body[data-theme='ocean'] {
-      background:
-        radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.1) 0%, transparent 30%),
-        radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 70% 85%, rgba(245, 158, 11, 0.06) 0%, transparent 35%),
-        linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%);
-    }
-
-    body[data-theme='ocean'] {
-      --accent-work: #2563eb;
-      --accent-ent: #06b6d4;
-      --accent-learn: #f59e0b;
-      --accent-primary: #2563eb;
-      --accent-primary-hover: #1d4ed8;
-    }
-
-    body[data-theme='warm'] {
-      background:
-        radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.1) 0%, transparent 30%),
-        radial-gradient(circle at 85% 20%, rgba(236, 72, 153, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 70% 85%, rgba(139, 92, 246, 0.07) 0%, transparent 35%),
-        linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
-    }
-
-    body[data-theme='warm'] {
-      --accent-work: #f97316;
-      --accent-ent: #ec4899;
-      --accent-learn: #8b5cf6;
-      --accent-primary: #ea580c;
-      --accent-primary-hover: #c2410c;
-    }
-
-    body[data-theme='morandi'] {
-      background:
-        radial-gradient(circle at 15% 15%, rgba(91, 127, 255, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 85% 20%, rgba(244, 114, 182, 0.07) 0%, transparent 30%),
-        radial-gradient(circle at 70% 85%, rgba(52, 211, 153, 0.08) 0%, transparent 35%),
-        linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dfe4ea 100%);
-    }
-
-    body[data-theme='morandi'] {
-      --accent-work: #5b7fff;
-      --accent-ent: #f472b6;
-      --accent-learn: #34d399;
-      --accent-primary: linear-gradient(135deg, #5b7fff, #a78bfa);
-      --accent-primary-hover: linear-gradient(135deg, #4a6aff, #9377f8);
-    }
-
-    /* ==================== Header: Time / Date / Controls ==================== */
-    header {
-      width: 100%;
-      max-width: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 24px;
-      padding: 18px 24px;
-      border-radius: 20px;
-    }
-
-    .time-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    #clock {
-      font-size: 2.4rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #1a2233;
-    }
-
-    #date {
-      font-size: 0.95rem;
-      color: #5b6572;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    /* ==================== Buttons ==================== */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 10px 18px;
-      border: none;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: #1e2430;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(226, 232, 238, 0.9);
-      box-shadow: 0 2px 8px rgba(30, 36, 48, 0.06);
-      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-      user-select: none;
-    }
-
-    .btn:hover {
-      background: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(30, 36, 48, 0.1);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn-primary {
-      background: var(--accent-primary, #1a2233);
-      border: 1px solid transparent;
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-primary-hover, #252f45);
-    }
-
-    .btn-danger {
-      background: rgba(244, 67, 54, 0.9);
-      color: #ffffff;
-      border-color: rgba(244, 67, 54, 0.9);
-    }
-
-    .btn-danger:hover {
-      background: #d32f2f;
-      border-color: #d32f2f;
-    }
-
-    .btn-icon {
-      width: 36px;
-      height: 36px;
-      padding: 0;
-      border-radius: 50%;
-      font-size: 1.1rem;
-    }
-
-    .theme-select {
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(226, 232, 238, 0.9);
-      background: rgba(255, 255, 255, 0.85);
-      color: #1e2430;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      outline: none;
-      box-shadow: 0 2px 8px rgba(30, 36, 48, 0.06);
-    }
-
-    .theme-select:hover {
-      background: #ffffff;
-      box-shadow: 0 6px 16px rgba(30, 36, 48, 0.1);
-    }
-
-    /* ==================== Search Bar ==================== */
-    .search-bar {
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto 32px;
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      border-radius: 999px;
-      gap: 12px;
-    }
-
-    .search-bar input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #1e2430;
-      font-size: 1.05rem;
-    }
-
-    .search-bar input::placeholder {
-      color: #98a2ad;
-    }
-
-    .search-bar .search-icon {
-      color: #5b6572;
-      font-size: 1.1rem;
-    }
-
-    /* ==================== Main Layout ==================== */
-    main {
-      width: 100%;
-      max-width: none;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      align-items: start;
-    }
-
-    /* ==================== Group Section ==================== */
-    .group {
-      position: relative;
-      overflow: hidden;
-      border-radius: 20px;
-      padding: 18px;
-      min-width: 0;
-    }
-
-    .group::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent, transparent), transparent);
-    }
-
-    .group.drag-over {
-      outline: 2px dashed var(--accent, #3b82f6);
-      outline-offset: -2px;
-    }
-
-    .group-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .group-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 10px;
-      color: #1e2430;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(226, 232, 238, 0.9);
-    }
-
-    .group-title .group-emoji {
-      font-size: 1.1rem;
-    }
-
-    .group-actions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .group-actions .btn-icon {
-      width: 30px;
-      height: 30px;
-      font-size: 1rem;
-    }
-
-    /* ==================== Shortcut Grid ==================== */
-    .shortcut-grid {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    /* 单个快捷卡片 */
-    .shortcut-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 10px 4px;
-      border-radius: 14px;
-      text-decoration: none;
-      color: #1e2430;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(226, 232, 238, 0.85);
-      box-shadow: 0 4px 14px rgba(30, 36, 48, 0.05);
-      transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        background 0.25s ease,
-        box-shadow 0.25s ease;
-      overflow: hidden;
-      cursor: grab;
-      min-width: 0;
-    }
-
-    .shortcut-card:hover {
-      transform: translateY(-4px) scale(1.03);
-      background: #ffffff;
-      box-shadow: 0 12px 28px rgba(30, 36, 48, 0.12);
-    }
-
-    .shortcut-card.dragging {
-      opacity: 0.4;
-      transform: scale(0.98);
-      cursor: grabbing;
-    }
-
-    .shortcut-card .icon {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 10px;
-      background: #f0f3f6;
-      font-size: 1.15rem;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .shortcut-card .icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .shortcut-card .name {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 0 2px;
-    }
-
-    /* 编辑 / 删除按钮仅在编辑模式下显示 */
-    .card-actions {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      display: flex;
-      gap: 4px;
-      opacity: 0;
-      transform: translateY(-4px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      pointer-events: none;
-    }
-
-    body.edit-mode .card-actions {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .card-actions .btn-icon {
-      width: 22px;
-      height: 22px;
-      font-size: 0.75rem;
-      background: rgba(255, 255, 255, 0.95);
-      color: #1e2430;
-      border: 1px solid rgba(226, 232, 238, 0.9);
-      box-shadow: 0 2px 6px rgba(30, 36, 48, 0.08);
-    }
-
-    .card-actions .btn-icon:hover {
-      background: #ffffff;
-    }
-
-    /* 编辑模式控制 */
-    .edit-only {
-      display: none !important;
-    }
-
-    body.edit-mode .edit-only {
-      display: inline-flex !important;
-    }
-
-    body.edit-mode .group-actions.edit-only {
-      display: flex !important;
-    }
-
-    body.edit-mode .shortcut-card {
-      animation: wiggle 0.25s ease-in-out infinite alternate;
-    }
-
-    @keyframes wiggle {
-      from {
-        transform: rotate(-0.6deg);
-      }
-      to {
-        transform: rotate(0.6deg);
-      }
-    }
-
-    /* ==================== Empty State ==================== */
-    .empty-tip {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 12px;
-      opacity: 0.6;
-      font-size: 0.8rem;
-    }
-
-    /* ==================== Modal ==================== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background: rgba(30, 36, 48, 0.35);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
-      z-index: 1000;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
-      overflow-y: auto;
-      border-radius: 24px;
-      padding: 28px;
-      transform: translateY(16px);
-      transition: transform 0.25s ease;
-    }
-
-    .modal-overlay.active .modal {
-      transform: translateY(0);
-    }
-
-    .modal h2 {
-      margin-bottom: 20px;
-      font-size: 1.4rem;
-      font-weight: 700;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      opacity: 0.9;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid #dfe5ea;
-      background: #f7f9fb;
-      color: #1e2430;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: #1a2233;
-      box-shadow: 0 0 0 3px rgba(26, 34, 51, 0.08);
-    }
-
-    .form-group input::placeholder {
-      color: #98a2ad;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 24px;
-    }
-
-    /* 图标预览 */
-    .icon-preview {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      background: #f0f3f6;
-      border: 1px solid #dfe5ea;
-      margin-bottom: 12px;
-      overflow: hidden;
-    }
-
-    .icon-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .hint {
-      font-size: 0.75rem;
-      opacity: 0.7;
-      margin-top: 4px;
-    }
-
-    /* ==================== Confirm Toast ==================== */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      padding: 12px 22px;
-      border-radius: 12px;
-      font-weight: 600;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
-      z-index: 1100;
-    }
-
-    .toast.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ==================== Responsive ==================== */
-    @media (max-width: 900px) {
-      main {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .shortcut-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 20px 12px 48px;
-      }
-
-      main {
-        grid-template-columns: 1fr;
-      }
-
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      #clock {
-        font-size: 1.9rem;
-      }
-
-      .shortcut-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="icon" href="data:,"/>
+<title>Glass New Tab — Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#F2EFE7;
+  --paper-2:#EAE6DA;
+  --surface:#FFFFFF;
+  --ink:#0F1A2E;
+  --muted:#6B7288;
+  --line:#DDD8CB;
+  --line-strong:#CFC8B8;
+  --cobalt:#1A66FF;
+  --cobalt-hover:#0F4ED9;
+  --stamp:#FF3D30;
+  --stamp-bg:#FFF0EE;
+  --grid:rgba(15,26,46,.06);
+  --radius:16px;
+  --radius-sm:12px;
+  --shadow: 8px 8px 0 rgba(15,26,46,.08);
+  --shadow-hover: 10px 10px 0 rgba(15,26,46,.10);
+}
+html,body{height:100%}
+body{
+  font-family:Inter,system-ui,-apple-system,sans-serif;
+  color:var(--ink);
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+  background-size: 32px 32px, 32px 32px, 100% 100%;
+  min-height:100vh;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:2px}
+::selection{background:var(--ink);color:#fff}
+.app{
+  max-width:1280px;margin:0 auto;
+  display:grid;grid-template-columns:360px 1fr;
+  gap:32px;padding:28px 24px 48px;
+  align-items:start;
+}
+.rail{
+  position:sticky;top:28px;
+  display:flex;flex-direction:column;gap:20px;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-family:"JetBrains Mono",monospace;
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--line);padding-bottom:14px;
+}
+.brand .mark{
+  width:28px;height:28px;display:grid;place-items:center;
+  background:var(--ink);color:#fff;border-radius:8px;font-size:1rem;letter-spacing:0
+}
+.brand strong{color:var(--ink);font-weight:500;letter-spacing:.14em}
+.time-block{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px 20px 18px;
+  box-shadow:var(--shadow);
+}
+.kicker{
+  font-family:"JetBrains Mono",monospace;
+  font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+}
+.kicker i{width:28px;height:1px;background:var(--line-strong);display:inline-block}
+#clock{
+  font-family:"Space Grotesk",sans-serif;
+  font-size:3.4rem;font-weight:700;letter-spacing:-.04em;line-height:.9;
+  color:var(--ink);
+}
+#clock span{font-weight:500;color:var(--muted);font-size:1.6rem;vertical-align:baseline;margin-left:4px}
+#date{
+  margin-top:8px;
+  font-family:"JetBrains Mono",monospace;font-size:.78rem;color:var(--muted);letter-spacing:.02em;
+}
+.stats{
+  margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);
+  display:flex;gap:14px;
+  font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);
+}
+.stats b{color:var(--ink);font-weight:500}
+.cmd{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--ink);
+  border-radius:999px;padding:12px 14px 12px 16px;
+  box-shadow:var(--shadow);
+  transition:border-color .2s, box-shadow .2s;
+}
+.cmd:focus-within{box-shadow:6px 6px 0 var(--ink);border-color:var(--ink)}
+.cmd .prompt{
+  font-family:"JetBrains Mono",monospace;color:var(--cobalt);font-weight:500;font-size:1rem;line-height:1;
+}
+.cmd input{
+  flex:1;border:none;outline:none;background:transparent;
+  font-family:Inter,sans-serif;font-size:.92rem;color:var(--ink);
+}
+.cmd input::placeholder{color:#9AA0B0}
+.cmd kbd{
+  font-family:"JetBrains Mono",monospace;font-size:.68rem;
+  background:var(--ink);color:#fff;padding:5px 8px;border-radius:99px;line-height:1;
+}
+.rail-actions{
+  display:flex;flex-wrap:wrap;gap:8px;
+}
+.btn{
+  appearance:none;border:1px solid var(--line);background:var(--surface);
+  border-radius:999px;padding:9px 14px;
+  font-family:"JetBrains Mono",monospace;font-size:.74rem;letter-spacing:.02em;font-weight:500;
+  color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:transform .15s, box-shadow .15s, background .15s, border-color .15s, color .15s;
+  user-select:none;
+}
+.btn:hover{transform:translateY(-1px);border-color:var(--ink);box-shadow:4px 4px 0 rgba(15,26,46,.08)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--cobalt);border-color:var(--cobalt);color:#fff;box-shadow:4px 4px 0 rgba(26,102,255,.22)}
+.btn-primary:hover{background:var(--cobalt-hover);border-color:var(--cobalt-hover);box-shadow:6px 6px 0 rgba(26,102,255,.28)}
+.btn-stamp{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.btn-stamp:hover{background:#E6352B}
+.btn-ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.select{
+  padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+  font-family:"JetBrains Mono",monospace;font-size:.74rem;color:var(--ink);outline:none;cursor:pointer;
+}
+.select:focus{border-color:var(--ink)}
+.edit-bar{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:12px;background:var(--stamp-bg);border:1px dashed #FFB4AF;border-radius:14px;
+  animation:stampIn .25s ease;
+}
+@keyframes stampIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.hint-mini{
+  font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--muted);line-height:1.4;
+}
+.hint-mini b{color:var(--ink);font-weight:500}
+.main-wrap{min-width:0}
+.catalog-head{
+  display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px;padding:0 4px;
+}
+.catalog-head h1{
+  font-family:"Space Grotesk",sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:10px;
+}
+.catalog-head h1 em{
+  font-style:normal;font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.14em;
+  color:var(--muted);font-weight:400;border:1px solid var(--line);padding:3px 7px;border-radius:99px;background:rgba(255,255,255,.7)
+}
+.catalog-head p{font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--muted)}
+#groups-container{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
+@media (min-width:1080px){
+  #groups-container{grid-template-columns:repeat(2, minmax(0,1fr));}
+}
+@media (min-width:1680px){
+  .app{max-width:1600px}
+  #groups-container{grid-template-columns:repeat(3, minmax(0,1fr));}
+}
+.group{
+  position:relative;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:0;overflow:visible;
+  transition:box-shadow .2s, transform .2s;
+}
+.group:hover{box-shadow:var(--shadow-hover);transform:translateY(-1px)}
+.group::before{
+  content:"";position:absolute;left:14px;top:12px;bottom:12px;width:0;
+  border-left:1px dashed var(--line-strong);opacity:.9;pointer-events:none;
+}
+.group.drag-over{outline:2px dashed var(--cobalt);outline-offset:2px}
+.group-tab{
+  position:absolute;left:18px;top:-10px;
+  display:inline-flex;align-items:center;gap:8px;
+  background:#FFFEFB;color:var(--ink);border:1px solid var(--line-strong);
+  font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 10px 6px 8px;border-radius:8px 8px 8px 2px;
+  box-shadow:2px 2px 0 rgba(15,26,46,.06);
+}
+.group-tab .dot{width:7px;height:7px;border-radius:50%;background:var(--cobalt);box-shadow:0 0 0 3px rgba(26,102,255,.12);flex-shrink:0}
+.group-tab .count{
+  background:#F2EFE7;border:1px solid var(--line);
+  color:var(--muted);padding:1px 6px;border-radius:99px;font-size:.66rem;letter-spacing:.08em
+}
+.group-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:26px 18px 14px 36px;
+  border-bottom:1px solid var(--line);
+}
+.group-title{
+  display:flex;align-items:baseline;gap:10px;min-width:0;
+}
+.group-title h2{
+  font-family:"Space Grotesk",sans-serif;font-size:1.02rem;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.group-title .meta{
+  font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--muted);letter-spacing:.04em;white-space:nowrap
+}
+.group-actions{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{
+  width:30px;height:30px;display:grid;place-items:center;
+  border:1px solid var(--line);background:var(--surface);border-radius:50%;
+  cursor:pointer;font-size:.9rem;transition:all .15s;
+}
+.icon-btn:hover{border-color:var(--ink);transform:translateY(-1px)}
+.shortcut-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(102px, 1fr));gap:10px;
+  padding:32px 14px 14px 30px;
+}
+.shortcut-card{
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 6px 10px;text-decoration:none;color:var(--ink);
+  background:#F9F8F5;border:1px solid var(--line);border-radius:14px;
+  transition:transform .18s cubic-bezier(.25,.46,.45,.94), background .18s, border-color .18s, box-shadow .18s;
+  overflow:hidden;min-width:0;
+}
+.shortcut-card:hover{
+  background:#fff;border-color:var(--ink);transform:translateY(-3px);
+  box-shadow:6px 6px 0 rgba(15,26,46,.08);
+}
+.shortcut-card.dragging{opacity:.4;transform:scale(.98)}
+.shortcut-card .icon{
+  width:44px;height:44px;display:grid;place-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  font-size:1.25rem;overflow:hidden;flex-shrink:0;position:relative;
+}
+.shortcut-card .icon img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:11px;opacity:0;transition:opacity .15s}
+.shortcut-card .icon img.loaded{opacity:1}
+.shortcut-card .icon .fallback-letter{width:100%;height:100%;display:grid;place-items:center;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:1rem;background:var(--paper-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;line-height:1}
+.shortcut-card .name{
+  font-size:.78rem;font-weight:600;letter-spacing:-.01em;text-align:center;line-height:1.25;
+  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;
+}
+.shortcut-card .domain{
+  font-family:"JetBrains Mono",monospace;font-size:.62rem;color:var(--muted);letter-spacing:.02em;
+  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;
+  opacity:0;transform:translateY(4px);transition:all .18s;pointer-events:none;
+}
+.shortcut-card:hover .domain{opacity:1;transform:translateY(0)}
+.card-actions{
+  position:absolute;top:6px;right:6px;display:flex;gap:4px;
+  opacity:0;transform:translateY(-4px);transition:all .15s;pointer-events:none;
+}
+body.edit-mode .card-actions{opacity:1;transform:translateY(0);pointer-events:auto}
+.card-actions .mini{
+  width:22px;height:22px;display:grid;place-items:center;
+  background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:50%;
+  font-size:.7rem;cursor:pointer;
+}
+.card-actions .mini.danger{background:#fff;color:var(--stamp);border-color:var(--stamp)}
+.card-actions .mini:hover{transform:scale(1.08)}
+.shortcut-card.edit-wiggle{animation:wiggle .28s ease-in-out infinite alternate}
+@keyframes wiggle{from{transform:rotate(-.5deg)}to{transform:rotate(.5deg)}}
+.shortcut-card.edit-wiggle:hover{animation:none;transform:translateY(-3px)}
+.empty-tip{
+  grid-column:1/-1;text-align:center;padding:22px 12px;
+  font-family:"JetBrains Mono",monospace;font-size:.74rem;color:var(--muted);
+  border:1px dashed var(--line);border-radius:12px;background:rgba(255,255,255,.6)
+}
+.empty-tip b{color:var(--ink);font-weight:500}
+.modal-overlay{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:rgba(15,26,46,.42);backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;transition:opacity .22s, visibility .22s;z-index:1000;
+}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal{
+  width:100%;max-width:480px;max-height:90vh;overflow:auto;
+  background:var(--surface);border:1px solid var(--ink);border-radius:20px;box-shadow:12px 12px 0 var(--ink);
+  padding:24px;transform:translateY(10px) scale(.98);transition:transform .22s;
+}
+.modal-overlay.active .modal{transform:translateY(0) scale(1)}
+.modal h2{font-family:"Space Grotesk",sans-serif;font-size:1.2rem;letter-spacing:-.02em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal h2 i{font-style:normal;width:8px;height:8px;background:var(--cobalt);border-radius:50%;display:inline-block}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;margin-bottom:6px;font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.form-group input,.form-group select{
+  width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:#F9F8F5;
+  color:var(--ink);font-size:.92rem;outline:none;transition:border-color .15s, box-shadow .15s;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--cobalt);box-shadow:0 0 0 3px rgba(26,102,255,.12);background:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.icon-preview{
+  width:56px;height:56px;border-radius:14px;display:grid;place-items:center;
+  font-size:1.6rem;background:#F9F8F5;border:1px solid var(--line);margin-bottom:12px;overflow:hidden;
+}
+.icon-preview img{width:100%;height:100%;object-fit:cover}
+.hint{font-size:.72rem;color:var(--muted);margin-top:6px}
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);
+  padding:11px 16px;border-radius:99px;font-family:"JetBrains Mono",monospace;font-size:.76rem;font-weight:500;
+  background:var(--ink);color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.18);
+  opacity:0;visibility:hidden;transition:all .22s;z-index:1100;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
+}
+.toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.theme-dots{display:flex;gap:6px;align-items:center}
+.theme-dots span{width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.08);display:inline-block}
+@media (max-width:980px){
+  .app{grid-template-columns:1fr;gap:20px;padding:16px 14px 40px}
+  .rail{position:static}
+  #clock{font-size:2.6rem}
+  .shortcut-grid{grid-template-columns:repeat(4, minmax(0,1fr));padding-left:14px}
+  .group::before{display:none}
+  .group-head{padding-left:18px}
+  .shortcut-card .domain{opacity:1;transform:none}
+}
+@media (max-width:560px){
+  .shortcut-grid{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .form-row{grid-template-columns:1fr}
+  .catalog-head{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important}
+  .reveal{opacity:1 !important;transform:none !important}
+  .shortcut-card.edit-wiggle{animation:none !important}
+}
+.reveal{opacity:0;transform:translateY(8px);animation:reveal .5s ease forwards}
+@keyframes reveal{to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
-  <!-- ==================== Header ==================== -->
-  <header class="glass">
-    <div class="time-block">
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <span class="mark">◐</span>
+      <strong>Chrome —</strong> New Tab &nbsp;<span class="ver">ARCHIVE / INDEX</span>
+    </div>
+
+    <div class="time-block reveal" style="animation-delay:.05s">
+      <div class="kicker"><i></i> Local Time — Hangzhou</div>
       <div id="clock">00:00</div>
-      <div id="date">载入中...</div>
+      <div id="date">载入中…</div>
+      <div class="stats" id="stats">—</div>
     </div>
-    <div class="header-actions">
-      <select id="theme-select" class="theme-select" title="配色方案">
-        <option value="default">默认浅色</option>
-        <option value="ocean">清新海洋</option>
-        <option value="warm">柔和暖调</option>
-        <option value="morandi">莫兰迪多色</option>
+
+    <label class="cmd reveal" style="animation-delay:.12s" for="search-input">
+      <span class="prompt">›</span>
+      <input id="search-input" placeholder="输入关键词，直接回车搜索…" autocomplete="off"/>
+      <kbd>↵ Google</kbd>
+    </label>
+
+    <div class="rail-actions reveal" style="animation-delay:.18s">
+      <button class="btn" id="btn-edit-mode">✎ 编辑</button>
+      <select id="theme-select" class="select" title="纸张 / 墨色">
+        <option value="default">纸 · 原色</option>
+        <option value="ocean">纸 · 海蓝</option>
+        <option value="warm">纸 · 暖调</option>
+        <option value="morandi">纸 · 莫兰迪</option>
       </select>
-      <button class="btn" id="btn-edit-mode" title="编辑模式">
-        <span>✏️</span> 编辑
-      </button>
-      <button class="btn edit-only" id="btn-manage-groups" title="管理分组">
-        <span>📁</span> 管理分组
-      </button>
-      <button class="btn btn-primary edit-only" id="btn-add-link" title="添加快捷入口">
-        <span>＋</span> 添加快捷
-      </button>
-      <button class="btn edit-only" id="btn-reset" title="恢复默认数据">
-        <span>↺</span> 重置
-      </button>
-      <button class="btn edit-only" id="btn-export" title="导出全部配置">
-        <span>⬇</span> 导出
-      </button>
-      <button class="btn edit-only" id="btn-import" title="导入配置">
-        <span>⬆</span> 导入
-      </button>
-      <input type="file" id="import-file" accept="application/json" style="display:none" />
+      <button class="btn" id="btn-export">⬇ 导出</button>
+      <button class="btn" id="btn-import">⬆ 导入</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none"/>
     </div>
-  </header>
 
-  <!-- ==================== Search Bar ==================== -->
-  <div class="search-bar glass">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="search-input" placeholder="输入关键词，按回车使用 Google 搜索..." autocomplete="off" />
-  </div>
-
-  <!-- ==================== Main Groups Container ==================== -->
-  <main id="groups-container"></main>
-
-  <!-- ==================== Modal: Add / Edit Shortcut ==================== -->
-  <div class="modal-overlay" id="link-modal">
-    <div class="modal glass">
-      <h2 id="link-modal-title">添加快捷入口</h2>
-
-      <div class="icon-preview" id="icon-preview">🌐</div>
-
-      <div class="form-group">
-        <label for="link-name">网站名称</label>
-        <input type="text" id="link-name" placeholder="例如：GitHub" maxlength="24" />
+    <div id="edit-bar" style="display:none">
+      <div class="edit-bar">
+        <button class="btn btn-primary" id="btn-add-link">＋ 添加快捷</button>
+        <button class="btn" id="btn-manage-groups">⬡ 管理分组</button>
+        <button class="btn btn-ghost" id="btn-reset">↺ 重置</button>
       </div>
-
-      <div class="form-group">
-        <label for="link-url">网站地址（URL）</label>
-        <input type="text" id="link-url" placeholder="例如：https://github.com" />
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="link-icon">图标 / Emoji</label>
-          <input type="text" id="link-icon" placeholder="例如：🐙 或留空" maxlength="2" />
-          <div class="hint">可输入 1~2 个 Emoji，或留空自动获取网站 Favicon</div>
-        </div>
-        <div class="form-group">
-          <label for="link-group">所属分组</label>
-          <select id="link-group"></select>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn" id="btn-link-cancel">取消</button>
-        <button class="btn btn-primary" id="btn-link-save">保存</button>
-      </div>
+      <div class="hint-mini" style="margin-top:10px">编辑模式下可拖拽卡片跨分组移动 · 点击 ✎ / 🗑 修改</div>
     </div>
-  </div>
-
-  <!-- ==================== Modal: Manage Groups ==================== -->
-  <div class="modal-overlay" id="groups-modal">
-    <div class="modal glass">
-      <h2>管理分组</h2>
-
-      <div class="form-group">
-        <label>现有分组</label>
-        <div id="groups-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px;"></div>
-      </div>
-
-      <div class="form-group" style="margin-top:20px;">
-        <label for="new-group-name">新增分组</label>
-        <div style="display:flex;gap:10px;">
-          <input type="text" id="new-group-name" placeholder="分组名称" style="flex:1;" />
-          <input type="text" id="new-group-emoji" placeholder="Emoji" style="width:80px;" maxlength="2" />
-          <button class="btn btn-primary" id="btn-create-group">创建</button>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn" id="btn-groups-close">关闭</button>
-      </div>
+    <div class="hint-mini reveal" style="animation-delay:.20s" id="always-actions">
+      <button class="btn" id="btn-always-import" style="padding:6px 12px;font-size:.72rem">⬆ 导入配置</button>
+      <button class="btn" id="btn-always-reset" style="padding:6px 12px;font-size:.72rem">↺ 恢复默认</button>
+      <span style="margin-left:6px">数据异常时可直接恢复</span>
     </div>
+
+    <div class="hint-mini reveal" style="animation-delay:.24s">
+      <b>提示</b> · 正常模式下点击即跳转，避免误触。需要整理时再进入编辑。<br>
+      <span style="display:flex;gap:6px;margin-top:10px;align-items:center" class="theme-dots"><span style="background:#F2EFE7"></span><span style="background:#0F1A2E"></span><span style="background:#1A66FF"></span><span style="background:#FF3D30"></span> <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;">INK · PAPER · COBALT · STAMP</span></span>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <div class="catalog-head reveal" style="animation-delay:.15s">
+      <h1>索引 <em id="catalog-count">10 SITES</em></h1>
+      <p>拖拽 · 归档 · 一键直达 — 你的私人桌面抽屉</p>
+    </div>
+    <main id="groups-container"></main>
   </div>
+</div>
 
-  <!-- ==================== Toast ==================== -->
-  <div class="toast glass" id="toast"></div>
+<div class="modal-overlay" id="link-modal">
+  <div class="modal">
+    <h2><i></i><span id="link-modal-title">添加快捷</span></h2>
+    <div class="icon-preview" id="icon-preview">🌐</div>
+    <div class="form-group"><label for="link-name">名称</label><input id="link-name" placeholder="例如：GitHub" maxlength="24"/></div>
+    <div class="form-group"><label for="link-url">链接 URL</label><input id="link-url" placeholder="https://github.com"/></div>
+    <div class="form-row">
+      <div class="form-group"><label for="link-icon">图标 / Emoji</label><input id="link-icon" placeholder="🐙 或留空自动抓取" maxlength="2"/><div class="hint">留空时自动显示网站 Favicon</div></div>
+      <div class="form-group"><label for="link-group">归入分组</label><select id="link-group"></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn" id="btn-link-cancel">取消</button><button class="btn btn-primary" id="btn-link-save">保存</button></div>
+  </div>
+</div>
 
-  <!-- ==================== JavaScript ==================== -->
-  <script>
-    /* ==================== Constants & Default Data ==================== */
-    const STORAGE_KEY = 'glass-new-tab-data-v1';
-    const THEME_KEY = 'glass-new-tab-theme';
+<div class="modal-overlay" id="groups-modal">
+  <div class="modal">
+    <h2><i></i>管理分组</h2>
+    <div class="form-group"><label>现有分组</label><div id="groups-list" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div></div>
+    <div class="form-group" style="margin-top:18px"><label for="new-group-name">新增分组</label><div style="display:flex;gap:8px"><input id="new-group-name" placeholder="分组名称" style="flex:1"/><input id="new-group-emoji" placeholder="Emoji" style="width:80px" maxlength="2"/><button class="btn btn-primary" id="btn-create-group">创建</button></div></div>
+    <div class="modal-actions"><button class="btn" id="btn-groups-close">关闭</button></div>
+  </div>
+</div>
 
-    // 内置初始数据：工作 / 娱乐 / 学习
-    const DEFAULT_DATA = {
-      groups: [
-        { id: 'g-work', name: '工作 / 常用工具', emoji: '💼' },
-        { id: 'g-ent', name: '娱乐 / 社交', emoji: '🎮' },
-        { id: 'g-learn', name: '学习 / 资讯', emoji: '📚' }
-      ],
-      shortcuts: [
-        { id: 's-1', name: 'GitHub', url: 'https://github.com', icon: '🐙', groupId: 'g-work' },
-        { id: 's-2', name: 'Vercel', url: 'https://vercel.com', icon: '▲', groupId: 'g-work' },
-        { id: 's-3', name: 'Figma', url: 'https://figma.com', icon: '🎨', groupId: 'g-work' },
-        { id: 's-4', name: 'ChatGPT', url: 'https://chat.openai.com', icon: '🤖', groupId: 'g-work' },
-        { id: 's-5', name: 'Bilibili', url: 'https://bilibili.com', icon: '📺', groupId: 'g-ent' },
-        { id: 's-6', name: 'YouTube', url: 'https://youtube.com', icon: '▶️', groupId: 'g-ent' },
-        { id: 's-7', name: 'Twitter', url: 'https://twitter.com', icon: '🐦', groupId: 'g-ent' },
-        { id: 's-8', name: '知乎', url: 'https://zhihu.com', icon: '💡', groupId: 'g-learn' },
-        { id: 's-9', name: '掘金', url: 'https://juejin.cn', icon: '📖', groupId: 'g-learn' },
-        { id: 's-10', name: 'MDN', url: 'https://developer.mozilla.org', icon: '🌐', groupId: 'g-learn' }
-      ]
-    };
+<div class="toast" id="toast"></div>
 
-    /* ==================== State ==================== */
-    let state = { groups: [], shortcuts: [] };
-    let editingLinkId = null;
-    let editMode = false;
-
-    /* ==================== DOM References ==================== */
-    const els = {
-      clock: document.getElementById('clock'),
-      date: document.getElementById('date'),
-      container: document.getElementById('groups-container'),
-      searchInput: document.getElementById('search-input'),
-      toast: document.getElementById('toast'),
-      linkModal: document.getElementById('link-modal'),
-      linkModalTitle: document.getElementById('link-modal-title'),
-      linkName: document.getElementById('link-name'),
-      linkUrl: document.getElementById('link-url'),
-      linkIcon: document.getElementById('link-icon'),
-      linkGroup: document.getElementById('link-group'),
-      iconPreview: document.getElementById('icon-preview'),
-      btnAddLink: document.getElementById('btn-add-link'),
-      btnLinkCancel: document.getElementById('btn-link-cancel'),
-      btnLinkSave: document.getElementById('btn-link-save'),
-      groupsModal: document.getElementById('groups-modal'),
-      groupsList: document.getElementById('groups-list'),
-      newGroupName: document.getElementById('new-group-name'),
-      newGroupEmoji: document.getElementById('new-group-emoji'),
-      btnManageGroups: document.getElementById('btn-manage-groups'),
-      btnGroupsClose: document.getElementById('btn-groups-close'),
-      btnCreateGroup: document.getElementById('btn-create-group'),
-      btnReset: document.getElementById('btn-reset'),
-      themeSelect: document.getElementById('theme-select'),
-      btnEditMode: document.getElementById('btn-edit-mode'),
-      btnExport: document.getElementById('btn-export'),
-      btnImport: document.getElementById('btn-import'),
-      importFile: document.getElementById('import-file')
-    };
-
-    /* ==================== Helpers ==================== */
-    function generateId(prefix) {
-      return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    }
-
-    function loadData() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && Array.isArray(parsed.groups) && Array.isArray(parsed.shortcuts)) {
-            state = parsed;
-            return;
-          }
-        }
-      } catch (e) {
-        console.warn('读取本地配置失败，使用默认数据', e);
-      }
-      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-      saveData();
-    }
-
-    function saveData() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        console.warn('保存本地配置失败', e);
+<script>
+const STORAGE_KEY='glass-new-tab-data-v1',THEME_KEY='glass-new-tab-theme';
+const DEFAULT_DATA={groups:[{id:'g-work',name:'工作 / 常用工具',emoji:'💼'},{id:'g-ent',name:'娱乐 / 社交',emoji:'🎮'},{id:'g-learn',name:'学习 / 资讯',emoji:'📚'}],shortcuts:[{id:'s-1',name:'GitHub',url:'https://github.com',icon:'🐙',groupId:'g-work'},{id:'s-2',name:'Vercel',url:'https://vercel.com',icon:'▲',groupId:'g-work'},{id:'s-3',name:'Figma',url:'https://figma.com',icon:'🎨',groupId:'g-work'},{id:'s-4',name:'ChatGPT',url:'https://chat.openai.com',icon:'🤖',groupId:'g-work'},{id:'s-5',name:'Bilibili',url:'https://bilibili.com',icon:'📺',groupId:'g-ent'},{id:'s-6',name:'YouTube',url:'https://youtube.com',icon:'▶️',groupId:'g-ent'},{id:'s-7',name:'Twitter',url:'https://twitter.com',icon:'🐦',groupId:'g-ent'},{id:'s-8',name:'知乎',url:'https://zhihu.com',icon:'💡',groupId:'g-learn'},{id:'s-9',name:'掘金',url:'https://juejin.cn',icon:'📖',groupId:'g-learn'},{id:'s-10',name:'MDN',url:'https://developer.mozilla.org',icon:'🌐',groupId:'g-learn'}]};
+let state={groups:[],shortcuts:[]},editingLinkId=null,editMode=false;
+const els={
+  clock:document.getElementById('clock'),
+  date:document.getElementById('date'),
+  stats:document.getElementById('stats'),
+  container:document.getElementById('groups-container'),
+  catalogCount:document.getElementById('catalog-count'),
+  searchInput:document.getElementById('search-input'),
+  toast:document.getElementById('toast'),
+  linkModal:document.getElementById('link-modal'),
+  linkModalTitle:document.getElementById('link-modal-title'),
+  linkName:document.getElementById('link-name'),
+  linkUrl:document.getElementById('link-url'),
+  linkIcon:document.getElementById('link-icon'),
+  linkGroup:document.getElementById('link-group'),
+  iconPreview:document.getElementById('icon-preview'),
+  btnAddLink:document.getElementById('btn-add-link'),
+  btnLinkCancel:document.getElementById('btn-link-cancel'),
+  btnLinkSave:document.getElementById('btn-link-save'),
+  groupsModal:document.getElementById('groups-modal'),
+  groupsList:document.getElementById('groups-list'),
+  newGroupName:document.getElementById('new-group-name'),
+  newGroupEmoji:document.getElementById('new-group-emoji'),
+  btnManageGroups:document.getElementById('btn-manage-groups'),
+  btnGroupsClose:document.getElementById('btn-groups-close'),
+  btnCreateGroup:document.getElementById('btn-create-group'),
+  btnReset:document.getElementById('btn-reset'),
+  themeSelect:document.getElementById('theme-select'),
+  btnEditMode:document.getElementById('btn-edit-mode'),
+  editBar:document.getElementById('edit-bar'),
+  btnExport:document.getElementById('btn-export'),
+  btnImport:document.getElementById('btn-import'),
+  importFile:document.getElementById('import-file'),
+  btnAlwaysImport:document.getElementById('btn-always-import'),
+  btnAlwaysReset:document.getElementById('btn-always-reset')
+};
+function generateId(p){return `${p}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`}
+function loadData(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(parsed&&Array.isArray(parsed.groups)&&Array.isArray(parsed.shortcuts)){
+        if(parsed.groups.length===0){ throw new Error('empty groups'); }
+        state=parsed;
+        let changed=false;
+        state.shortcuts.forEach(s=>{ if(!state.groups.find(g=>g.id===s.groupId)){ s.groupId=state.groups[0].id; changed=true; }});
+        if(changed) saveData();
+        return;
       }
     }
-
-    function debounce(fn, wait) {
-      let timer = null;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), wait);
-      };
-    }
-
-    /* ==================== Theme ==================== */
-    function applyTheme(theme) {
-      document.body.dataset.theme = theme || 'default';
-      try {
-        localStorage.setItem(THEME_KEY, theme);
-      } catch (e) {
-        console.warn('保存主题失败', e);
-      }
-    }
-
-    function loadTheme() {
-      try {
-        return localStorage.getItem(THEME_KEY) || 'default';
-      } catch {
-        return 'default';
-      }
-    }
-
-    const GROUP_ACCENT_KEYS = ['--accent-work', '--accent-ent', '--accent-learn'];
-
-    function getGroupAccent(index) {
-      const key = GROUP_ACCENT_KEYS[index % GROUP_ACCENT_KEYS.length];
-      const value = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
-      return value || '#3b82f6';
-    }
-
-    function toggleEditMode() {
-      editMode = !editMode;
-      document.body.classList.toggle('edit-mode', editMode);
-      els.btnEditMode.innerHTML = editMode
-        ? '<span>✅</span> 完成'
-        : '<span>✏️</span> 编辑';
-      els.btnEditMode.classList.toggle('btn-primary', editMode);
-      renderGroups();
-      showToast(editMode ? '已进入编辑模式' : '已退出编辑模式', 'info');
-    }
-
-    let titleAbortController = null;
-
-    async function fetchSiteTitle(url) {
-      const target = normalizeUrl(url);
-      if (!target) return;
-      // 如果用户已经填写了名称，不再覆盖
-      if (els.linkName.value.trim()) return;
-
-      if (titleAbortController) titleAbortController.abort();
-      titleAbortController = new AbortController();
-
-      try {
-        const res = await fetch(
-          `https://api.microlink.io?url=${encodeURIComponent(target)}`,
-          { signal: titleAbortController.signal }
-        );
-        if (!res.ok) return;
-        const data = await res.json();
-        const title = data?.data?.title?.trim();
-        if (title && !els.linkName.value.trim()) {
-          els.linkName.value = title;
-        }
-      } catch (err) {
-        // 忽略网络/CORS/中断错误，静默失败
-        if (err.name !== 'AbortError') {
-          console.warn('自动获取标题失败', err);
-        }
-      }
-    }
-
-    const debouncedFetchTitle = debounce(fetchSiteTitle, 800);
-
-    function normalizeUrl(url) {
-      if (!url) return '';
-      url = url.trim();
-      if (!/^https?:\/\//i.test(url) && !/^ftps?:\/\//i.test(url)) {
-        url = 'https://' + url;
-      }
-      return url;
-    }
-
-    function getDomain(url) {
-      try {
-        return new URL(normalizeUrl(url)).hostname;
-      } catch {
-        return '';
-      }
-    }
-
-    function isEmojiOnly(str) {
-      // 简单判断：若含有非 ASCII 字符且不是 URL，则认为可能是 emoji
-      return /[^\x00-\x7F]/.test(str);
-    }
-
-    function renderIcon(icon, url) {
-      icon = (icon || '').trim();
-      if (icon) {
-        // 用户明确提供了 emoji / 字符，直接显示
-        return `<span>${icon}</span>`;
-      }
-      const domain = getDomain(url);
-      if (domain) {
-        return `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64" alt="icon" loading="lazy" onerror="this.style.display='none';this.parentNode.innerHTML='🌐'" />`;
-      }
-      return '<span>🌐</span>';
-    }
-
-    function showToast(message, type = 'info') {
-      els.toast.textContent = message;
-      if (type === 'error') {
-        els.toast.style.background = 'rgba(244, 67, 54, 0.95)';
-        els.toast.style.color = '#ffffff';
-      } else if (type === 'success') {
-        els.toast.style.background = 'rgba(76, 175, 80, 0.95)';
-        els.toast.style.color = '#ffffff';
-      } else {
-        els.toast.style.background = 'rgba(26, 34, 51, 0.92)';
-        els.toast.style.color = '#ffffff';
-      }
-      els.toast.classList.add('show');
-      setTimeout(() => els.toast.classList.remove('show'), 2200);
-    }
-
-    /* ==================== Clock ==================== */
-    function updateClock() {
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, '0');
-      els.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-      els.date.textContent = now.toLocaleDateString('zh-CN', options);
-    }
-
-    /* ==================== Rendering ==================== */
-    function renderGroups() {
-      els.container.innerHTML = '';
-
-      state.groups.forEach((group, index) => {
-        const groupShortcuts = state.shortcuts.filter((s) => s.groupId === group.id);
-
-        const section = document.createElement('section');
-        section.className = 'group glass';
-        section.dataset.groupId = group.id;
-        section.style.setProperty('--accent', getGroupAccent(index));
-
-        const header = document.createElement('div');
-        header.className = 'group-header';
-        header.innerHTML = `
-          <div class="group-title">
-            <span class="group-emoji">${group.emoji || '📁'}</span>
-            <span>${escapeHtml(group.name)}</span>
-          </div>
-          <div class="group-actions edit-only">
-            <button class="btn btn-icon" title="在此分组添加快捷" data-action="add-to-group" data-group="${group.id}">＋</button>
+  }catch(e){console.warn('loadData fallback',e)}
+  state=JSON.parse(JSON.stringify(DEFAULT_DATA));saveData();
+}
+function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}}
+function debounce(fn,wait){let t=null;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),wait)}}
+function applyTheme(theme){
+  document.body.dataset.theme=theme||'default';
+  const r=document.documentElement;
+  if(theme==='ocean'){
+    r.style.setProperty('--paper','#EEF4FF');r.style.setProperty('--paper-2','#DCE8FF');
+    r.style.setProperty('--cobalt','#1A66FF');r.style.setProperty('--line','#C9D7F5');
+  }else if(theme==='warm'){
+    r.style.setProperty('--paper','#FFF6E9');r.style.setProperty('--paper-2','#FFEAD0');
+    r.style.setProperty('--cobalt','#EA580C');r.style.setProperty('--line','#F0D9BE');
+  }else if(theme==='morandi'){
+    r.style.setProperty('--paper','#F3F1FA');r.style.setProperty('--paper-2','#E8E6F2');
+    r.style.setProperty('--cobalt','#6D5BFF');r.style.setProperty('--line','#DDD8EF');
+  }else{
+    r.style.setProperty('--paper','#F2EFE7');r.style.setProperty('--paper-2','#EAE6DA');
+    r.style.setProperty('--cobalt','#1A66FF');r.style.setProperty('--line','#DDD8CB');
+  }
+  try{localStorage.setItem(THEME_KEY,theme)}catch(e){}
+}
+function loadTheme(){try{return localStorage.getItem(THEME_KEY)||'default'}catch{return 'default'}}
+function toggleEditMode(){
+  editMode=!editMode;document.body.classList.toggle('edit-mode',editMode);
+  els.btnEditMode.textContent=editMode?'✓ 完成':'✎ 编辑';
+  els.btnEditMode.classList.toggle('btn-primary',editMode);
+  els.btnEditMode.classList.toggle('btn-stamp',editMode);
+  els.editBar.style.display=editMode?'block':'none';
+  renderGroups();
+  showToast(editMode?'已进入编辑模式 — 可拖拽、编辑':'已退出编辑模式','info');
+}
+let titleAbortController=null;
+async function fetchSiteTitle(url){
+  const target=normalizeUrl(url);if(!target||els.linkName.value.trim()) return;
+  if(titleAbortController) titleAbortController.abort();
+  titleAbortController=new AbortController();
+  try{
+    const res=await fetch(`https://api.microlink.io?url=${encodeURIComponent(target)}`,{signal:titleAbortController.signal});
+    if(!res.ok) return;const data=await res.json();const title=data?.data?.title?.trim();
+    if(title&&!els.linkName.value.trim()) els.linkName.value=title;
+  }catch(e){if(e.name!=='AbortError') console.warn(e)}
+}
+const debouncedFetchTitle=debounce(fetchSiteTitle,800);
+function normalizeUrl(url){if(!url) return '';url=url.trim();if(!/^https?:\/\//i.test(url)&&!/^ftps?:\/\//i.test(url)) url='https://'+url;return url}
+function getDomain(url){try{return new URL(normalizeUrl(url)).hostname}catch{return ''}}
+function renderIcon(icon,url,name){
+  icon=(icon||'').trim();if(icon) return `<span>${escapeHtml(icon)}</span>`;
+  const domain=getDomain(url);
+  const letter=((name||domain||'🌐').trim().charAt(0).toUpperCase()||'🌐');
+  const safe=escapeHtml(letter);
+  if(domain) return `<span class="fallback-letter">${safe}</span><img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.remove()">`;
+  return `<span>${safe}</span>`;
+}
+function showToast(msg,type='info'){
+  els.toast.textContent=msg;
+  els.toast.style.background=type==='error'?'#FF3D30':type==='success'?'#0F8A5F':'#0F1A2E';
+  els.toast.classList.add('show');setTimeout(()=>els.toast.classList.remove('show'),2200);
+}
+function updateClock(){
+  const now=new Date();const pad=n=>String(n).padStart(2,'0');
+  els.clock.innerHTML=`${pad(now.getHours())}:${pad(now.getMinutes())}<span>:${pad(now.getSeconds())}</span>`;
+  els.date.textContent=now.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  const total=state.shortcuts.length,groups=state.groups.length;
+  els.stats.innerHTML=`<span><b>${String(total).padStart(2,'0')}</b> SITES</span><span>·</span><span><b>${String(groups).padStart(2,'0')}</b> GROUPS</span><span>·</span><span>${editMode?'EDITING':'BROWSE'}</span>`;
+  if(els.catalogCount) els.catalogCount.textContent=`${String(total).padStart(2,'0')} SITES · ${String(groups).padStart(2,'0')} GROUPS`;
+}
+function renderGroups(){
+  els.container.innerHTML='';
+  if(state.groups.length===0){
+    els.container.innerHTML=`<div class="group" style="padding:28px;text-align:center"><div style="font-family:Space Grotesk,sans-serif;font-weight:700;margin-bottom:8px">空索引 — 尚未建立任何分组</div><div style="font-family:JetBrains Mono,monospace;font-size:.74rem;color:var(--muted);margin-bottom:14px">本地数据为空或已损坏，可一键恢复默认示例</div><button class="btn btn-primary" onclick="resetData()">↺ 恢复默认索引</button> <button class="btn" onclick="localStorage.clear();location.reload()">清空缓存重载</button><div style="margin-top:10px;font-size:.68rem;color:var(--muted)">或访问 <code>?reset=1</code> 自动重置</div></div>`;
+    return;
+  }
+  const idxMap={0:'W',1:'E',2:'L'};
+  state.groups.forEach((group,index)=>{
+    const groupShortcuts=state.shortcuts.filter(s=>s.groupId===group.id);
+    const section=document.createElement('section');
+    section.className='group';
+    section.dataset.groupId=group.id;
+    section.style.animationDelay=`${index*70}ms`;
+    section.classList.add('reveal');
+    const code=`${idxMap[index%3]||'G'}-${String(groupShortcuts.length).padStart(2,'0')}`;
+    const tab=document.createElement('div');
+    tab.className='group-tab';
+    tab.innerHTML=`<span class="dot"></span> ${escapeHtml(group.emoji||'📁')} ${escapeHtml(group.name)} <span class="count">${code} · ${groupShortcuts.length} 项</span><button class="icon-btn" title="在此分组添加" data-action="add-empty" data-group="${group.id}" style="margin-left:8px;width:22px;height:22px;font-size:.75rem;background:var(--ink);border-color:var(--ink);color:#fff">＋</button>`;
+    const grid=document.createElement('div');
+    grid.className='shortcut-grid';
+    if(groupShortcuts.length===0){
+      grid.innerHTML=`<div class="empty-tip">空抽屉 — <button class="btn btn-primary" data-action="add-empty" data-group="${group.id}" style="padding:4px 10px;font-size:.72rem">＋ 添加快捷</button> <button class="btn" data-action="trigger-import" style="padding:4px 10px;font-size:.72rem">⬆ 导入</button></div>`;
+    }else{
+      groupShortcuts.forEach((sc,i)=>{
+        const card=document.createElement('a');
+        card.className='shortcut-card'+(editMode?' edit-wiggle':'');
+        card.href=normalizeUrl(sc.url);card.target='_blank';card.rel='noopener noreferrer';
+        card.title=sc.name;card.draggable=editMode;card.dataset.id=sc.id;
+        card.style.animationDelay=`${i*24}ms`;
+        const domain=getDomain(sc.url);
+        card.innerHTML=`
+          <div class="icon">${renderIcon(sc.icon, sc.url, sc.name)}</div>
+          <div class="name">${escapeHtml(sc.name)}</div>
+          <div class="domain">${escapeHtml(domain)}</div>
+          <div class="card-actions">
+            <button class="mini" title="编辑" data-action="edit" data-id="${sc.id}">✎</button>
+            <button class="mini danger" title="删除" data-action="delete" data-id="${sc.id}">✕</button>
           </div>
         `;
-
-        const grid = document.createElement('div');
-        grid.className = 'shortcut-grid';
-
-        if (groupShortcuts.length === 0) {
-          grid.innerHTML = `<div class="empty-tip">该分组暂无快捷入口，点击右上角 ＋ 添加</div>`;
-        } else {
-          groupShortcuts.forEach((shortcut) => {
-            const card = document.createElement('a');
-            card.className = 'shortcut-card';
-            card.href = normalizeUrl(shortcut.url);
-            card.target = '_blank';
-            card.rel = 'noopener noreferrer';
-            card.title = shortcut.name;
-            card.draggable = editMode;
-            card.dataset.id = shortcut.id;
-            card.innerHTML = `
-              <div class="icon">${renderIcon(shortcut.icon, shortcut.url)}</div>
-              <div class="name">${escapeHtml(shortcut.name)}</div>
-              <div class="card-actions">
-                <button class="btn btn-icon" title="编辑" data-action="edit" data-id="${shortcut.id}">✎</button>
-                <button class="btn btn-icon" title="删除" data-action="delete" data-id="${shortcut.id}">🗑</button>
-              </div>
-            `;
-            grid.appendChild(card);
-          });
-        }
-
-        section.appendChild(header);
-        section.appendChild(grid);
-        els.container.appendChild(section);
+        grid.appendChild(card);
       });
     }
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function populateGroupSelect(selectedId) {
-      els.linkGroup.innerHTML = '';
-      state.groups.forEach((g) => {
-        const option = document.createElement('option');
-        option.value = g.id;
-        option.textContent = `${g.emoji || '📁'} ${g.name}`;
-        if (g.id === selectedId) option.selected = true;
-        els.linkGroup.appendChild(option);
-      });
-    }
-
-    /* ==================== Link Modal Logic ==================== */
-    function openLinkModal(mode = 'add', shortcut = null, groupId = null) {
-      editingLinkId = mode === 'edit' && shortcut ? shortcut.id : null;
-      els.linkModalTitle.textContent = mode === 'edit' ? '编辑快捷入口' : '添加快捷入口';
-      els.linkName.value = shortcut ? shortcut.name : '';
-      els.linkUrl.value = shortcut ? shortcut.url : '';
-      els.linkIcon.value = shortcut ? shortcut.icon : '';
-      populateGroupSelect(groupId || (shortcut ? shortcut.groupId : state.groups[0]?.id));
-      updateIconPreview();
-      els.linkModal.classList.add('active');
-      els.linkName.focus();
-    }
-
-    function closeLinkModal() {
-      els.linkModal.classList.remove('active');
-      editingLinkId = null;
-    }
-
-    function updateIconPreview() {
-      const icon = els.linkIcon.value;
-      const url = els.linkUrl.value;
-      els.iconPreview.innerHTML = renderIcon(icon, url);
-    }
-
-    function saveLink() {
-      const name = els.linkName.value.trim();
-      let url = els.linkUrl.value.trim();
-      const icon = els.linkIcon.value.trim();
-      const groupId = els.linkGroup.value;
-
-      if (!name) {
-        showToast('请输入网站名称', 'error');
-        return;
-      }
-      if (!url) {
-        showToast('请输入网站地址', 'error');
-        return;
-      }
-      if (!groupId || !state.groups.find((g) => g.id === groupId)) {
-        showToast('请选择有效的分组', 'error');
-        return;
-      }
-
-      url = normalizeUrl(url);
-
-      if (editingLinkId) {
-        const idx = state.shortcuts.findIndex((s) => s.id === editingLinkId);
-        if (idx !== -1) {
-          state.shortcuts[idx] = { ...state.shortcuts[idx], name, url, icon, groupId };
-          showToast('快捷入口已更新', 'success');
-        }
-      } else {
-        state.shortcuts.push({ id: generateId('s'), name, url, icon, groupId });
-        showToast('快捷入口已添加', 'success');
-      }
-
-      saveData();
-      renderGroups();
-      closeLinkModal();
-    }
-
-    function deleteLink(id) {
-      if (!confirm('确定要删除这个快捷入口吗？')) return;
-      state.shortcuts = state.shortcuts.filter((s) => s.id !== id);
-      saveData();
-      renderGroups();
-      showToast('已删除', 'success');
-    }
-
-    /* ==================== Groups Modal Logic ==================== */
-    function renderGroupsManagement() {
-      els.groupsList.innerHTML = '';
-      if (state.groups.length === 0) {
-        els.groupsList.innerHTML = '<div class="empty-tip">暂无分组</div>';
-        return;
-      }
-      state.groups.forEach((g) => {
-        const count = state.shortcuts.filter((s) => s.groupId === g.id).length;
-        const row = document.createElement('div');
-        row.className = 'glass';
-        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:14px;';
-        row.innerHTML = `
-          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
-            <span style="font-size:1.2rem;">${g.emoji || '📁'}</span>
-            <input type="text" value="${escapeHtml(g.name)}" data-field="name" data-group="${g.id}" style="flex:1;min-width:0;background:transparent;border:none;color:#1e2430;font-size:0.95rem;outline:none;border-bottom:1px solid rgba(30,36,48,0.12);" />
-            <input type="text" value="${g.emoji || ''}" data-field="emoji" data-group="${g.id}" style="width:46px;text-align:center;background:transparent;border:none;color:#1e2430;font-size:1.1rem;outline:none;border-bottom:1px solid rgba(30,36,48,0.12);" maxlength="2" />
-            <span style="font-size:0.75rem;opacity:0.6;white-space:nowrap;">${count} 个</span>
-          </div>
-          <button class="btn btn-danger" data-action="delete-group" data-group="${g.id}" style="margin-left:10px;padding:6px 12px;font-size:0.8rem;">删除</button>
-        `;
-        els.groupsList.appendChild(row);
-      });
-    }
-
-    function openGroupsModal() {
-      renderGroupsManagement();
-      els.groupsModal.classList.add('active');
-    }
-
-    function closeGroupsModal() {
-      els.groupsModal.classList.remove('active');
-    }
-
-    function createGroup() {
-      const name = els.newGroupName.value.trim();
-      const emoji = els.newGroupEmoji.value.trim();
-      if (!name) {
-        showToast('请输入分组名称', 'error');
-        return;
-      }
-      state.groups.push({ id: generateId('g'), name, emoji });
-      saveData();
-      renderGroups();
-      renderGroupsManagement();
-      els.newGroupName.value = '';
-      els.newGroupEmoji.value = '';
-      showToast('分组已创建', 'success');
-    }
-
-    function updateGroup(id, field, value) {
-      const group = state.groups.find((g) => g.id === id);
-      if (!group) return;
-      group[field] = value;
-      saveData();
-      renderGroups();
-    }
-
-    function deleteGroup(id) {
-      const count = state.shortcuts.filter((s) => s.groupId === id).length;
-      const msg = count > 0 ? `该分组下还有 ${count} 个快捷入口，删除后会一并移除。确定删除吗？` : '确定要删除这个分组吗？';
-      if (!confirm(msg)) return;
-      state.groups = state.groups.filter((g) => g.id !== id);
-      state.shortcuts = state.shortcuts.filter((s) => s.groupId !== id);
-      saveData();
-      renderGroups();
-      renderGroupsManagement();
-      showToast('分组已删除', 'success');
-    }
-
-    function resetData() {
-      if (!confirm('确定要恢复默认数据吗？所有自定义分组和快捷入口将被覆盖。')) return;
-      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-      saveData();
-      renderGroups();
-      showToast('已恢复默认数据', 'success');
-    }
-
-    /* ==================== Export / Import ==================== */
-    function exportConfig() {
-      const payload = {
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        theme: loadTheme(),
-        groups: state.groups,
-        shortcuts: state.shortcuts
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `glass-new-tab-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      showToast('配置已导出', 'success');
-    }
-
-    function validateImportData(data) {
-      if (!data || typeof data !== 'object') return '文件格式不正确';
-      if (!Array.isArray(data.groups) || !Array.isArray(data.shortcuts)) return '缺少分组或快捷入口数据';
-
-      const groupIds = new Set();
-      for (const g of data.groups) {
-        if (!g || typeof g.id !== 'string' || typeof g.name !== 'string') return '分组数据格式不正确';
-        groupIds.add(g.id);
-      }
-      for (const s of data.shortcuts) {
-        if (!s || typeof s.id !== 'string' || typeof s.name !== 'string' || typeof s.url !== 'string' || typeof s.groupId !== 'string') {
-          return '快捷入口数据格式不正确';
-        }
-      }
-      return null;
-    }
-
-    function handleImportFile(file) {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result);
-          const error = validateImportData(data);
-          if (error) {
-            showToast(`导入失败：${error}`, 'error');
-            return;
-          }
-
-          if (!confirm('导入将覆盖当前所有分组、快捷入口和配色方案，确定继续吗？')) return;
-
-          // 修复快捷方式中不存在的 groupId，统一挂到第一个分组
-          const fallbackGroupId = data.groups[0]?.id;
-          data.shortcuts.forEach((s) => {
-            if (!data.groups.find((g) => g.id === s.groupId)) {
-              s.groupId = fallbackGroupId;
-            }
-          });
-
-          state.groups = data.groups;
-          state.shortcuts = data.shortcuts;
-          saveData();
-
-          if (typeof data.theme === 'string') {
-            applyTheme(data.theme);
-            els.themeSelect.value = data.theme;
-          }
-
-          renderGroups();
-          showToast('配置已导入', 'success');
-        } catch (err) {
-          showToast('导入失败：不是有效的 JSON 文件', 'error');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    /* ==================== Search ==================== */
-    function handleSearch(e) {
-      if (e.key !== 'Enter') return;
-      const q = els.searchInput.value.trim();
-      if (!q) return;
-      window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
-      els.searchInput.value = '';
-    }
-
-    /* ==================== Event Bindings ==================== */
-    function bindEvents() {
-      // Header buttons
-      els.btnAddLink.addEventListener('click', () => openLinkModal('add'));
-      els.btnManageGroups.addEventListener('click', openGroupsModal);
-      els.btnReset.addEventListener('click', resetData);
-      els.btnEditMode.addEventListener('click', toggleEditMode);
-      els.btnExport.addEventListener('click', exportConfig);
-      els.btnImport.addEventListener('click', () => els.importFile.click());
-      els.importFile.addEventListener('change', (e) => {
-        handleImportFile(e.target.files[0]);
-        e.target.value = '';
-      });
-
-      // Theme selector
-      els.themeSelect.addEventListener('change', (e) => {
-        applyTheme(e.target.value);
-        renderGroups();
-        showToast('配色方案已切换', 'success');
-      });
-
-      // Link modal
-      els.btnLinkCancel.addEventListener('click', closeLinkModal);
-      els.btnLinkSave.addEventListener('click', saveLink);
-      els.linkIcon.addEventListener('input', updateIconPreview);
-      els.linkUrl.addEventListener('input', () => {
-        updateIconPreview();
-        debouncedFetchTitle(els.linkUrl.value);
-      });
-      // 失焦时若仍未获取到标题，立即再尝试一次
-      els.linkUrl.addEventListener('blur', () => {
-        fetchSiteTitle(els.linkUrl.value);
-      });
-
-      // Groups modal
-      els.btnGroupsClose.addEventListener('click', closeGroupsModal);
-      els.btnCreateGroup.addEventListener('click', createGroup);
-
-      // Group inline editing & deletion
-      els.groupsList.addEventListener('input', (e) => {
-        const target = e.target;
-        if (!target.dataset.group) return;
-        updateGroup(target.dataset.group, target.dataset.field, target.value.trim());
-      });
-      els.groupsList.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action="delete-group"]');
-        if (btn) deleteGroup(btn.dataset.group);
-      });
-
-      // Delegated shortcut actions (edit / delete / add-to-group)
-      els.container.addEventListener('click', (e) => {
-        const btn = e.target.closest('button, .shortcut-card');
-        if (!btn) return;
-        const action = btn.dataset.action;
-        if (!action) return;
-
-        if (action === 'add-to-group') {
-          if (!editMode) return;
-          openLinkModal('add', null, btn.dataset.group);
-          return;
-        }
-
-        const id = btn.dataset.id;
-        if (action === 'edit') {
-          if (!editMode) return;
-          e.preventDefault();
-          e.stopPropagation();
-          const shortcut = state.shortcuts.find((s) => s.id === id);
-          if (shortcut) openLinkModal('edit', shortcut);
-        } else if (action === 'delete') {
-          if (!editMode) return;
-          e.preventDefault();
-          e.stopPropagation();
-          deleteLink(id);
-        }
-      });
-
-      // Drag & Drop: move shortcut between groups
-      els.container.addEventListener('dragstart', (e) => {
-        const card = e.target.closest('.shortcut-card');
-        if (!card) return;
-        // 非编辑模式下禁止拖拽
-        if (!editMode) {
-          e.preventDefault();
-          return;
-        }
-        // 避免拖拽编辑/删除按钮
-        if (e.target.closest('button')) {
-          e.preventDefault();
-          return;
-        }
-        e.dataTransfer.setData('text/plain', card.dataset.id);
-        e.dataTransfer.effectAllowed = 'move';
-        card.classList.add('dragging');
-      });
-
-      els.container.addEventListener('dragend', (e) => {
-        const card = e.target.closest('.shortcut-card');
-        if (card) card.classList.remove('dragging');
-        document.querySelectorAll('.group.drag-over').forEach((g) => g.classList.remove('drag-over'));
-      });
-
-      els.container.addEventListener('dragover', (e) => {
-        const groupEl = e.target.closest('.group');
-        if (!groupEl) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        document.querySelectorAll('.group.drag-over').forEach((g) => {
-          if (g !== groupEl) g.classList.remove('drag-over');
-        });
-        groupEl.classList.add('drag-over');
-      });
-
-      els.container.addEventListener('dragleave', (e) => {
-        const groupEl = e.target.closest('.group');
-        if (!groupEl) return;
-        // 只有当离开 group 本身时才移除高亮
-        if (!groupEl.contains(e.relatedTarget)) {
-          groupEl.classList.remove('drag-over');
-        }
-      });
-
-      els.container.addEventListener('drop', (e) => {
-        const groupEl = e.target.closest('.group');
-        if (!groupEl) return;
-        e.preventDefault();
-        groupEl.classList.remove('drag-over');
-
-        const id = e.dataTransfer.getData('text/plain');
-        const targetGroupId = groupEl.dataset.groupId;
-        if (!id || !targetGroupId) return;
-
-        const shortcut = state.shortcuts.find((s) => s.id === id);
-        if (!shortcut || shortcut.groupId === targetGroupId) return;
-
-        shortcut.groupId = targetGroupId;
-        saveData();
-        renderGroups();
-        showToast('已移动到新分组', 'success');
-      });
-
-      // Search
-      els.searchInput.addEventListener('keydown', handleSearch);
-
-      // Close modals on overlay click
-      document.querySelectorAll('.modal-overlay').forEach((overlay) => {
-        overlay.addEventListener('click', (e) => {
-          if (e.target === overlay) overlay.classList.remove('active');
-        });
-      });
-
-      // Close modals on Escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          closeLinkModal();
-          closeGroupsModal();
-        }
-      });
-    }
-
-    /* ==================== Init ==================== */
-    function init() {
-      const theme = loadTheme();
-      applyTheme(theme);
-      els.themeSelect.value = theme;
-      loadData();
-      renderGroups();
-      updateClock();
-      setInterval(updateClock, 1000);
-      bindEvents();
-      // 页面加载后自动聚焦搜索框，可直接打字
-      els.searchInput.focus();
-    }
-
-    init();
-  </script>
+    section.appendChild(tab);section.appendChild(grid);
+    els.container.appendChild(section);
+  });
+}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function populateGroupSelect(selectedId){
+  els.linkGroup.innerHTML='';
+  state.groups.forEach(g=>{
+    const o=document.createElement('option');o.value=g.id;o.textContent=`${g.emoji||'📁'} ${g.name}`;if(g.id===selectedId) o.selected=true;els.linkGroup.appendChild(o);
+  });
+}
+function openLinkModal(mode='add',shortcut=null,groupId=null){
+  editingLinkId=mode==='edit'&&shortcut?shortcut.id:null;
+  els.linkModalTitle.textContent=mode==='edit'?'编辑快捷':'添加快捷';
+  els.linkName.value=shortcut?shortcut.name:'';els.linkUrl.value=shortcut?shortcut.url:'';els.linkIcon.value=shortcut?shortcut.icon:'';
+  populateGroupSelect(groupId||(shortcut?shortcut.groupId:state.groups[0]?.id));
+  updateIconPreview();els.linkModal.classList.add('active');els.linkName.focus();
+}
+function closeLinkModal(){els.linkModal.classList.remove('active');editingLinkId=null}
+function updateIconPreview(){els.iconPreview.innerHTML=renderIcon(els.linkIcon.value, els.linkUrl.value, els.linkName.value||'🌐')}
+function saveLink(){
+  const name=els.linkName.value.trim();let url=els.linkUrl.value.trim();const icon=els.linkIcon.value.trim();const groupId=els.linkGroup.value;
+  if(!name) return showToast('请输入名称','error');
+  if(!url) return showToast('请输入链接','error');
+  if(!groupId||!state.groups.find(g=>g.id===groupId)) return showToast('请选择分组','error');
+  url=normalizeUrl(url);
+  if(editingLinkId){
+    const idx=state.shortcuts.findIndex(s=>s.id===editingLinkId);
+    if(idx!==-1){state.shortcuts[idx]={...state.shortcuts[idx],name,url,icon,groupId};showToast('已更新','success')}
+  }else{state.shortcuts.push({id:generateId('s'),name,url,icon,groupId});showToast('已添加','success')}
+  saveData();renderGroups();closeLinkModal();
+}
+function deleteLink(id){if(!confirm('确定删除该快捷？'))return;state.shortcuts=state.shortcuts.filter(s=>s.id!==id);saveData();renderGroups();showToast('已删除','success')}
+function renderGroupsManagement(){
+  els.groupsList.innerHTML='';
+  if(state.groups.length===0){els.groupsList.innerHTML='<div class="empty-tip">暂无分组</div>';return}
+  state.groups.forEach(g=>{
+    const count=state.shortcuts.filter(s=>s.groupId===g.id).length;
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:#F9F8F5;border:1px solid var(--line)';
+    row.innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+        <span style="font-size:1.1rem">${g.emoji||'📁'}</span>
+        <input type="text" value="${escapeHtml(g.name)}" data-field="name" data-group="${g.id}" style="flex:1;min-width:0;background:transparent;border:none;font-size:.92rem;outline:none;border-bottom:1px dashed var(--line)"/>
+        <input type="text" value="${g.emoji||''}" data-field="emoji" data-group="${g.id}" style="width:44px;text-align:center;background:transparent;border:none;font-size:1rem;outline:none;border-bottom:1px dashed var(--line)" maxlength="2"/>
+        <span style="font-family:JetBrains Mono,monospace;font-size:.68rem;color:var(--muted)">${String(count).padStart(2,'0')}</span>
+      </div>
+      <button class="btn" style="margin-left:8px;padding:6px 10px" data-action="delete-group" data-group="${g.id}">删除</button>
+    `;
+    els.groupsList.appendChild(row);
+  });
+}
+function openGroupsModal(){renderGroupsManagement();els.groupsModal.classList.add('active')}
+function closeGroupsModal(){els.groupsModal.classList.remove('active')}
+function createGroup(){
+  const name=els.newGroupName.value.trim(),emoji=els.newGroupEmoji.value.trim();
+  if(!name) return showToast('请输入分组名称','error');
+  state.groups.push({id:generateId('g'),name,emoji});saveData();renderGroups();renderGroupsManagement();
+  els.newGroupName.value='';els.newGroupEmoji.value='';showToast('已创建','success');
+}
+function updateGroup(id,field,value){const g=state.groups.find(x=>x.id===id);if(!g) return;g[field]=value;saveData();renderGroups()}
+function deleteGroup(id){
+  const count=state.shortcuts.filter(s=>s.groupId===id).length;
+  if(!confirm(count>0?`该分组下还有 ${count} 个快捷，删除后一并移除？`:'确定删除该分组？')) return;
+  state.groups=state.groups.filter(g=>g.id!==id);state.shortcuts=state.shortcuts.filter(s=>s.groupId!==id);
+  saveData();renderGroups();renderGroupsManagement();showToast('已删除分组','success');
+}
+function resetData(){if(!confirm('恢复默认将覆盖所有自定义内容，确定？'))return;state=JSON.parse(JSON.stringify(DEFAULT_DATA));saveData();renderGroups();showToast('已恢复默认','success')}
+function exportConfig(){
+  const payload={version:1,exportedAt:new Date().toISOString(),theme:loadTheme(),groups:state.groups,shortcuts:state.shortcuts};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`archive-backup-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);showToast('已导出','success');
+}
+function validateImportData(data){
+  if(!data||typeof data!=='object') return '文件格式不正确';
+  if(!Array.isArray(data.groups)||!Array.isArray(data.shortcuts)) return '缺少分组或快捷数据';
+  for(const g of data.groups) if(!g||typeof g.id!=='string'||typeof g.name!=='string') return '分组格式错误';
+  for(const s of data.shortcuts) if(!s||typeof s.id!=='string'||typeof s.name!=='string'||typeof s.url!=='string'||typeof s.groupId!=='string') return '快捷格式错误';
+  return null;
+}
+function handleImportFile(file){
+  if(!file) return;const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);const err=validateImportData(data);
+      if(err) return showToast('导入失败：'+err,'error');
+      if(!confirm('导入将覆盖现有全部数据，确定？')) return;
+      const fallback=data.groups[0]?.id;
+      data.shortcuts.forEach(s=>{if(!data.groups.find(g=>g.id===s.groupId)) s.groupId=fallback});
+      state.groups=data.groups;state.shortcuts=data.shortcuts;saveData();
+      if(typeof data.theme==='string'){applyTheme(data.theme);els.themeSelect.value=data.theme}
+      renderGroups();showToast('已导入','success');
+    }catch(e){showToast('不是有效的 JSON','error')}
+  };reader.readAsText(file);
+}
+function handleSearch(e){if(e.key!=='Enter') return;const q=els.searchInput.value.trim();if(!q) return;window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`,'_blank','noopener,noreferrer');els.searchInput.value=''}
+function bindEvents(){
+  els.btnAddLink.addEventListener('click',()=>openLinkModal('add'));
+  els.btnManageGroups.addEventListener('click',openGroupsModal);
+  els.btnReset.addEventListener('click',resetData);
+  els.btnEditMode.addEventListener('click',toggleEditMode);
+  els.btnExport.addEventListener('click',exportConfig);
+  els.btnImport.addEventListener('click',()=>els.importFile.click());
+  if(els.btnAlwaysImport) els.btnAlwaysImport.addEventListener('click',()=>els.importFile.click());
+  if(els.btnAlwaysReset) els.btnAlwaysReset.addEventListener('click',resetData);
+  els.importFile.addEventListener('change',e=>{handleImportFile(e.target.files[0]);e.target.value=''});
+  els.themeSelect.addEventListener('change',e=>{applyTheme(e.target.value);showToast('已切换纸张','success')});
+  els.btnLinkCancel.addEventListener('click',closeLinkModal);
+  els.btnLinkSave.addEventListener('click',saveLink);
+  els.linkIcon.addEventListener('input',updateIconPreview);
+  els.linkUrl.addEventListener('input',()=>{updateIconPreview();debouncedFetchTitle(els.linkUrl.value)});
+  els.linkUrl.addEventListener('blur',()=>fetchSiteTitle(els.linkUrl.value));
+  els.btnGroupsClose.addEventListener('click',closeGroupsModal);
+  els.btnCreateGroup.addEventListener('click',createGroup);
+  els.groupsList.addEventListener('input',e=>{const t=e.target;if(!t.dataset.group) return;updateGroup(t.dataset.group,t.dataset.field,t.value.trim())});
+  els.groupsList.addEventListener('click',e=>{const b=e.target.closest('[data-action="delete-group"]');if(b) deleteGroup(b.dataset.group)});
+  els.container.addEventListener('click',e=>{
+    const btn=e.target.closest('button, .shortcut-card');if(!btn) return;
+    const action=btn.dataset.action;if(!action) return;
+    if(action==='add-empty'){ openLinkModal('add',null,btn.dataset.group);return}
+    if(action==='trigger-import'){ els.importFile.click();return}
+    if(action==='add-to-group'){if(!editMode) return;openLinkModal('add',null,btn.dataset.group);return}
+    const id=btn.dataset.id;
+    if(action==='edit'){if(!editMode) return;e.preventDefault();e.stopPropagation();const sc=state.shortcuts.find(s=>s.id===id);if(sc) openLinkModal('edit',sc)}
+    else if(action==='delete'){if(!editMode) return;e.preventDefault();e.stopPropagation();deleteLink(id)}
+  });
+  els.container.addEventListener('dragstart',e=>{
+    const card=e.target.closest('.shortcut-card');if(!card||!editMode||e.target.closest('button')){e.preventDefault();return}
+    e.dataTransfer.setData('text/plain',card.dataset.id);e.dataTransfer.effectAllowed='move';card.classList.add('dragging');
+  });
+  els.container.addEventListener('dragend',e=>{
+    const card=e.target.closest('.shortcut-card');if(card) card.classList.remove('dragging');
+    document.querySelectorAll('.group.drag-over').forEach(g=>g.classList.remove('drag-over'));
+  });
+  els.container.addEventListener('dragover',e=>{
+    const g=e.target.closest('.group');if(!g) return;e.preventDefault();e.dataTransfer.dropEffect='move';
+    document.querySelectorAll('.group.drag-over').forEach(x=>{if(x!==g) x.classList.remove('drag-over')});g.classList.add('drag-over');
+  });
+  els.container.addEventListener('dragleave',e=>{
+    const g=e.target.closest('.group');if(!g) return;if(!g.contains(e.relatedTarget)) g.classList.remove('drag-over');
+  });
+  els.container.addEventListener('drop',e=>{
+    const g=e.target.closest('.group');if(!g) return;e.preventDefault();g.classList.remove('drag-over');
+    const id=e.dataTransfer.getData('text/plain'),target=g.dataset.groupId;if(!id||!target) return;
+    const sc=state.shortcuts.find(s=>s.id===id);if(!sc||sc.groupId===target) return;
+    sc.groupId=target;saveData();renderGroups();showToast('已移动','success');
+  });
+  els.searchInput.addEventListener('keydown',handleSearch);
+  document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o) o.classList.remove('active')}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLinkModal();closeGroupsModal()}});
+}
+function init(){
+  const params=new URLSearchParams(location.search);
+  if(params.has('reset') || params.has('clear')){
+    localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(THEME_KEY);
+    const url=new URL(location.href); url.searchParams.delete('reset'); url.searchParams.delete('clear');
+    history.replaceState(null,'', url.pathname + (url.search ? url.search : '') + url.hash);
+  }
+  const theme=loadTheme();applyTheme(theme);els.themeSelect.value=theme;
+  loadData();renderGroups();updateClock();setInterval(updateClock,1000);bindEvents();els.searchInput.focus();
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.reveal').forEach(el=>{el.style.opacity='1';el.style.transform='none';el.style.animation='none'});
+  }
+  setTimeout(()=>{ document.querySelectorAll('.reveal').forEach(el=>{ if(getComputedStyle(el).opacity==='0'){ el.style.opacity='1'; el.style.transform='none'; }}); }, 900);
+  if(state.shortcuts.length===0 && state.groups.length>0){
+    showToast('当前无快捷方式，可点击 ✎ 编辑添加','info');
+  }
+}
+init();
+</script>
 </body>
 </html>
