@@ -111,6 +111,13 @@ a{color:inherit}
   font-family:"JetBrains Mono",monospace;font-size:.68rem;
   background:var(--ink);color:#fff;padding:5px 8px;border-radius:99px;line-height:1;
 }
+.cmd-submit{
+  appearance:none;border:none;
+  font-family:"JetBrains Mono",monospace;font-size:.68rem;
+  background:var(--ink);color:#fff;padding:5px 8px;border-radius:99px;line-height:1;
+  cursor:pointer;flex-shrink:0;transition:background .15s;
+}
+.cmd-submit:hover{background:var(--cobalt)}
 .rail-actions{
   display:flex;flex-wrap:wrap;gap:8px;
 }
@@ -343,11 +350,11 @@ body.edit-mode .card-actions{opacity:1;transform:translateY(0);pointer-events:au
       <div class="stats" id="stats">—</div>
     </div>
 
-    <label class="cmd reveal" style="animation-delay:.12s" for="search-input">
+    <div class="cmd reveal" style="animation-delay:.12s">
       <span class="prompt">›</span>
       <input id="search-input" placeholder="输入关键词，直接回车搜索…" autocomplete="off"/>
-      <kbd>↵ Google</kbd>
-    </label>
+      <button type="button" class="cmd-submit" id="search-submit">↵ Google</button>
+    </div>
 
     <div class="rail-actions reveal" style="animation-delay:.18s">
       <button class="btn" id="btn-edit-mode">✎ 编辑</button>
@@ -728,6 +735,8 @@ function bindEvents(){
     sc.groupId=target;saveData();renderGroups();showToast('已移动','success');
   });
   els.searchInput.addEventListener('keydown',handleSearch);
+  const searchSubmit=document.getElementById('search-submit');
+  if(searchSubmit) searchSubmit.addEventListener('click',()=>handleSearch({key:'Enter'}));
   document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o) o.classList.remove('active')}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLinkModal();closeGroupsModal()}});
 }
