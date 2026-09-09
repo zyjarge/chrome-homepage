@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>毛绒风 · 新标签页预览</title>
+<style>
+:root{
+  --kimi-font-sans: system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --kimi-font-mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --kimi-color-text-primary:#1a1a1a;
+  --kimi-color-text-secondary:#575757;
+  --kimi-color-text-tertiary:#8a8a8a;
+  --kimi-color-text-quaternary:#b3b3b3;
+}
+html,body{margin:0;padding:0;}
+body{background:#efeff2;min-height:100vh;}
+</style>
+</head>
+<body>
+<div class="plush-root">
+<style>
+.plush-root{
+  --p-cream:#fff6ec; --p-pink:#ffc9d9; --p-blue:#bcd8ff; --p-mint:#c9ecd9; --p-lav:#ddd3f7; --p-peach:#ffe0bd;
+  font-family:var(--kimi-font-sans,sans-serif);
+  position:relative; overflow:hidden; padding:28px; border-radius:24px;
+  background:
+    radial-gradient(900px 500px at 10% 0%, var(--p-pink), transparent 55%),
+    radial-gradient(800px 500px at 95% 10%, var(--p-blue), transparent 55%),
+    radial-gradient(700px 500px at 50% 115%, var(--p-lav), transparent 60%),
+    linear-gradient(180deg,#fbf5ee,#f6efe6);
+}
+.plush-root button{font:inherit;}
+.plush-root *{box-sizing:border-box;}
+.p-fabric{position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:repeating-linear-gradient(0deg, rgba(180,150,120,.05) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(90deg, rgba(180,150,120,.05) 0 2px, transparent 2px 5px);}
+.p-puff{position:absolute; border-radius:50%; filter:blur(2px); opacity:.35; pointer-events:none;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(255,255,255,0) 65%);
+  animation:pBreathe 7s ease-in-out infinite;}
+@keyframes pBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+.p-wrap{position:relative; display:grid; grid-template-columns:290px 1fr; gap:20px; align-items:start;}
+
+/* ===== plush material ===== */
+.plush{
+  position:relative;
+  background:linear-gradient(160deg,#fffdf9,#f7eee2);
+  border-radius:30px;
+  box-shadow:0 14px 28px -14px rgba(150,110,80,.4), inset 0 3px 6px rgba(255,255,255,.95), inset 0 -10px 18px -8px rgba(190,150,110,.3);
+  transition:transform .45s cubic-bezier(.3,1.4,.5,1), box-shadow .45s ease;
+}
+.plush::before{content:""; position:absolute; inset:6px; border-radius:24px; pointer-events:none;
+  border:2px dashed rgba(190,140,100,.45);}
+.plush:hover{transform:scale(1.015);
+  box-shadow:0 20px 36px -14px rgba(150,110,80,.5), inset 0 3px 6px rgba(255,255,255,.95), inset 0 -10px 18px -8px rgba(190,150,110,.3);}
+.plush.hug{animation:pHug .8s cubic-bezier(.3,1.3,.5,1);}
+@keyframes pHug{
+  0%{transform:scale(1)} 30%{transform:scale(1.06,.88)} 55%{transform:scale(.95,1.05)}
+  75%{transform:scale(1.02,.98)} 100%{transform:scale(1)}}
+
+/* ===== sidebar ===== */
+.side{padding:26px 20px; display:flex; flex-direction:column; gap:16px; position:sticky; top:0;}
+.side .lbl{font-size:11px; letter-spacing:.22em; color:var(--kimi-color-text-tertiary); text-transform:uppercase;}
+.p-clock{font-size:52px; font-weight:500; line-height:1.05; letter-spacing:0;
+  font-variant-numeric:tabular-nums; color:#6b5340;
+  text-shadow:1px 1px 0 #fff, -1px -1px 0 rgba(190,150,110,.35), 0 3px 0 rgba(190,150,110,.25);}
+.p-clock small{font-size:22px; color:#b08d6e;}
+.p-date{font-size:13px; color:#93755c;}
+.p-stats{display:flex; gap:10px; font-size:11px; color:#b08d6e; letter-spacing:.14em;}
+.p-search{display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:999px; cursor:text;
+  font-size:13px; color:#a5876c; position:relative;
+  background:linear-gradient(160deg,#fff,#f5ebdd);
+  box-shadow:inset 0 3px 8px rgba(190,150,110,.3), inset 0 -2px 3px rgba(255,255,255,.9);}
+.p-search::before{inset:4px; border-width:1.5px;}
+.p-search .g{margin-left:auto; font-size:11px; font-weight:500; color:#7d6248;
+  background:linear-gradient(160deg,#fff,#f2e6d6); padding:3px 10px; border-radius:999px;
+  box-shadow:0 2px 4px rgba(190,150,110,.35);}
+.p-btns{display:flex; flex-wrap:wrap; gap:8px;}
+.p-btn{padding:7px 13px; border-radius:999px; font-size:12px; cursor:pointer; position:relative;
+  color:#7d6248; border:none;
+  background:linear-gradient(160deg,#fffaf3,#f3e7d7);
+  box-shadow:0 4px 8px -3px rgba(190,150,110,.45), inset 0 2px 3px rgba(255,255,255,.95), inset 0 -3px 5px -2px rgba(190,150,110,.3);
+  transition:transform .4s cubic-bezier(.3,1.5,.5,1);}
+.p-btn::before{inset:3px; border-width:1.5px;}
+.p-btn:hover{transform:scale(1.1) rotate(-2deg);}
+.p-btn:active{transform:scale(.9);}
+.p-themes{display:flex; align-items:center; gap:14px; font-size:10px; letter-spacing:.18em; color:#b08d6e;}
+.p-dot{width:13px; height:13px; border-radius:50%; cursor:pointer; position:relative;
+  border:2px solid rgba(255,255,255,.9);
+  box-shadow:0 2px 5px rgba(150,110,80,.4), inset 0 -3px 4px rgba(0,0,0,.18), inset 0 2px 3px rgba(255,255,255,.6);
+  transition:transform .4s cubic-bezier(.3,1.6,.5,1);}
+.p-dot::before{inset:2px; border-width:1px;}
+.p-dot:hover{transform:scale(1.5);}
+.p-hint{font-size:11px; color:#c4a88e;}
+
+/* ===== groups ===== */
+.groups{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px;}
+.gcard{padding:18px 16px; display:flex; flex-direction:column; gap:13px;}
+.ghead{display:flex; align-items:center; gap:8px;}
+.gdot{width:9px;height:9px;border-radius:50%; box-shadow:inset 0 -2px 3px rgba(0,0,0,.2), inset 0 2px 2px rgba(255,255,255,.7);}
+.gtitle{font-size:14px; font-weight:500; color:#6b5340;
+  text-shadow:0.5px 0.5px 0 rgba(255,255,255,.9);}
+.gcount{font-size:11px; color:#a5876c; position:relative;
+  background:linear-gradient(160deg,#fff,#f2e6d6); padding:2px 9px; border-radius:999px;
+  box-shadow:inset 0 2px 4px rgba(190,150,110,.25);}
+.gcount::before{inset:2px; border-width:1px;}
+.gadd{margin-left:auto; width:22px;height:22px;border-radius:50%; border:none; cursor:pointer; font-size:14px; line-height:1;
+  color:#fff; position:relative;
+  background:linear-gradient(160deg,#8a6d52,#6b5340);
+  box-shadow:0 3px 6px -2px rgba(107,83,64,.6), inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 4px rgba(0,0,0,.25);
+  transition:transform .45s cubic-bezier(.3,1.5,.5,1);}
+.gadd::before{inset:2px; border-width:1px; border-color:rgba(255,255,255,.5);}
+.gadd:hover{transform:rotate(90deg) scale(1.2);}
+.gtiles{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.gtile{display:flex; flex-direction:column; align-items:center; gap:7px; padding:12px 4px 10px;
+  border-radius:20px; cursor:pointer; position:relative;
+  background:linear-gradient(160deg,#fffdf8,#f5ecdf);
+  box-shadow:0 6px 12px -7px rgba(190,150,110,.5), inset 0 2px 4px rgba(255,255,255,.95), inset 0 -6px 10px -5px rgba(190,150,110,.35);
+  transition:transform .45s cubic-bezier(.3,1.5,.5,1);}
+.gtile::before{inset:4px; border-width:1.5px;}
+.gtile:hover{transform:scale(1.1) translateY(-3px) rotate(1deg);}
+.gtile:active{transform:scale(.88);}
+.gtile.hug{animation:pHug .7s cubic-bezier(.3,1.3,.5,1);}
+.gico{width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:500; color:#fff; position:relative; text-shadow:0 1px 2px rgba(0,0,0,.25);
+  box-shadow:0 4px 8px -3px rgba(150,110,80,.5), inset 0 -5px 8px -3px rgba(0,0,0,.22), inset 0 3px 5px rgba(255,255,255,.55);
+  transition:transform .45s cubic-bezier(.3,1.5,.5,1);}
+.gico::before{inset:3px; border-width:1.5px; border-color:rgba(255,255,255,.65);}
+.gtile:hover .gico{transform:rotate(-10deg) scale(1.15);}
+.gname{font-size:11.5px; color:#93755c; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  text-shadow:0.5px 0.5px 0 rgba(255,255,255,.85);}
+</style>
+
+<div class="p-fabric"></div>
+<div class="p-puff" style="width:240px;height:240px;top:-40px;left:26%"></div>
+<div class="p-puff" style="width:180px;height:180px;bottom:-30px;right:10%;animation-delay:-3s"></div>
+
+<div class="p-wrap">
+  <!-- sidebar -->
+  <div class="side plush">
+    <div class="lbl">local time · hangzhou</div>
+    <div class="p-clock" id="pclock">17:06<small>:57</small></div>
+    <div class="p-date" id="pdate">2026年9月8日 星期二</div>
+    <div class="p-stats"><span>43 SITES</span><span>·</span><span>08 GROUPS</span><span>·</span><span>BROWSE</span></div>
+    <div class="p-search" data-h>› 输入关键词，直接回车搜索…<span class="g">G Google</span></div>
+    <div class="p-btns">
+      <button class="p-btn" data-h>✎ 编辑</button>
+      <button class="p-btn" data-h>纸 · 海蓝 ▾</button>
+      <button class="p-btn" data-h>⬇ 导出</button>
+      <button class="p-btn" data-h>⬆ 导入</button>
+      <button class="p-btn" data-h>⬆ 导入配置</button>
+      <button class="p-btn" data-h>↺ 恢复默认</button>
+    </div>
+    <div class="p-hint">提示 · 毛绒模式下点击会像捏公仔一样慢慢回弹。</div>
+    <div class="p-themes">
+      <span class="p-dot" style="background:#4a3f38" data-h></span>
+      <span class="p-dot" style="background:#f3ead9" data-h></span>
+      <span class="p-dot" style="background:#a9c3e2" data-h></span>
+      <span class="p-dot" style="background:#e59a83" data-h></span>
+      <span>INK · PAPER · COBALT · STAMP</span>
+    </div>
+  </div>
+
+  <!-- groups -->
+  <div class="groups" id="pgroups"></div>
+</div>
+
+<script>
+const FELT=[['#f2a7bd','#e58aa6'],['#a3c3ea','#84a9d9'],['#9ed3b4','#7dbd99'],['#c3b3e8','#a794d6'],['#f0c294','#e0a672'],['#9cc6dd','#7cafc9'],['#e3a3c0','#d183a6'],['#b7d693','#9cc276']];
+const GROUPS=[
+ {t:'AI',c:'9 项',d:'#e2708a',sites:['ChatGPT','Minimax','OpenCode','Kimi AI','Gemini','DeepSeek','豆包','Skill 商店','The Agent']},
+ {t:'娱乐 / 社交',c:'6 项',d:'#e2708a',sites:['GitHub','Bilibili','YouTube','Twitter','抖音','Telegram']},
+ {t:'学习 / 资讯',c:'4 项',d:'#4da183',sites:['知乎','掘金','MDN','Macked']},
+ {t:'内网服务',c:'6 项',d:'#d9964f',sites:['LLM Monitor','Node Export','MCPHUB','OpenMeta','DSH','Hermes']},
+ {t:'招聘信息',c:'4 项',d:'#d96459',sites:['Boss直聘','猎聘','招聘网','脉脉']},
+ {t:'网络',c:'6 项',d:'#9a7fc9',sites:['良心云','Nerwo','ESXI','iStoreos','iKuai','Redmi Router']},
+ {t:'工作',c:'6 项',d:'#5f9ec4',sites:['Vercel','Figma','Gmail','Google Calendar','网易邮箱','Google Tasks']},
+ {t:'个人社媒',c:'2 项',d:'#d9b24f',sites:['张勇-大数据','张勇-大数据']}
+];
+const hash=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h;};
+document.getElementById('pgroups').innerHTML=GROUPS.map(g=>`
+ <div class="gcard plush">
+  <div class="ghead">
+    <span class="gdot" style="background:${g.d}"></span>
+    <span class="gtitle">${g.t}</span>
+    <span class="gcount">${g.c}</span>
+    <button class="gadd" data-h>+</button>
+  </div>
+  <div class="gtiles">${g.sites.map(s=>{
+    const f=FELT[hash(s)%FELT.length];
+    return `<div class="gtile" data-h><div class="gico" style="background:radial-gradient(circle at 32% 28%, ${f[0]}, ${f[1]})">${[...s][0].toUpperCase()}</div><div class="gname">${s}</div></div>`;
+  }).join('')}</div>
+ </div>`).join('');
+
+function hug(el){el.classList.remove('hug');void el.offsetWidth;el.classList.add('hug');}
+document.querySelector('.plush-root').addEventListener('click',e=>{
+  const t=e.target.closest('[data-h]'); if(t) hug(t);
+});
+
+function tick(){
+  const n=new Date(),p=x=>String(x).padStart(2,'0');
+  document.getElementById('pclock').innerHTML=`${p(n.getHours())}:${p(n.getMinutes())}<small>:${p(n.getSeconds())}</small>`;
+  document.getElementById('pdate').textContent=`${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${'日一二三四五六'[n.getDay()]}`;
+}
+tick(); setInterval(tick,1000);
+</script>
+</div></body>
+</html>

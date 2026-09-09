@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>手绘风 · 新标签页预览</title>
+<style>
+:root{
+  --kimi-font-sans: system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --kimi-font-mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --kimi-color-text-primary:#1a1a1a;
+  --kimi-color-text-secondary:#575757;
+  --kimi-color-text-tertiary:#8a8a8a;
+  --kimi-color-text-quaternary:#b3b3b3;
+}
+html,body{margin:0;padding:0;}
+body{background:#efeff2;min-height:100vh;}
+</style>
+</head>
+<body>
+<div class="sk-root">
+<style>
+.sk-root{
+  --sk-ink:#3a3630; --sk-pencil:#8a8177;
+  font-family:var(--kimi-font-sans,sans-serif);
+  position:relative; overflow:hidden; padding:30px; border-radius:24px;
+  background:
+    radial-gradient(700px 400px at 85% -5%, rgba(255,236,170,.5), transparent 60%),
+    radial-gradient(700px 500px at 0% 100%, rgba(190,220,255,.45), transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0 30px, rgba(150,170,210,.14) 30px 31px),
+    linear-gradient(180deg,#fefcf6,#f8f4ea);
+}
+.sk-root button{font:inherit;}
+.sk-root *{box-sizing:border-box;}
+.sk-scribble{position:absolute; pointer-events:none; opacity:.55;}
+
+.sk-wrap{position:relative; display:grid; grid-template-columns:290px 1fr; gap:22px; align-items:start;}
+
+/* ===== hand-drawn material ===== */
+.sk{
+  position:relative;
+  background:#fffdf7;
+  border:2px solid var(--sk-ink);
+  border-radius:255px 18px 225px 18px/18px 225px 18px 255px;
+  box-shadow:3px 4px 0 rgba(58,54,48,.9);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+}
+.sk.r1{border-radius:18px 240px 18px 250px/250px 18px 240px 18px;}
+.sk.r2{border-radius:240px 18px 250px 18px/18px 250px 18px 240px;}
+.sk:hover{transform:rotate(-1deg) translateY(-3px); box-shadow:5px 7px 0 rgba(58,54,48,.9);}
+.sk.scribble-pop{animation:skPop .45s cubic-bezier(.34,1.56,.64,1);}
+@keyframes skPop{
+  0%{transform:scale(1) rotate(0)} 35%{transform:scale(1.05,.92) rotate(-2deg)}
+  65%{transform:scale(.96,1.04) rotate(1.5deg)} 100%{transform:scale(1) rotate(0)}}
+
+/* tape */
+.tape{position:absolute; width:78px; height:24px; top:-12px; left:50%; transform:translateX(-50%) rotate(-4deg);
+  background:rgba(255,236,150,.75); border-left:2px dashed rgba(58,54,48,.35); border-right:2px dashed rgba(58,54,48,.35);
+  box-shadow:1px 2px 3px rgba(58,54,48,.2); pointer-events:none;}
+
+/* ===== sidebar ===== */
+.side{padding:26px 20px; display:flex; flex-direction:column; gap:15px;}
+.side .lbl{font-size:11px; letter-spacing:.22em; color:var(--sk-pencil); text-transform:uppercase;}
+.sk-clock{font-size:52px; font-weight:500; line-height:1.05; letter-spacing:0;
+  font-variant-numeric:tabular-nums; color:var(--sk-ink);
+  text-shadow:2px 2px 0 rgba(58,54,48,.12);}
+.sk-clock small{font-size:22px; color:var(--sk-pencil);}
+.sk-date{font-size:13px; color:var(--sk-pencil);}
+.hl{position:relative; display:inline-block; padding:0 4px;}
+.hl::after{content:""; position:absolute; left:-2px; right:-2px; top:52%; height:.72em; z-index:-1;
+  background:rgba(255,224,102,.65); transform:rotate(-1.2deg); border-radius:2px;}
+.sk-stats{display:flex; gap:10px; font-size:11px; color:var(--sk-pencil); letter-spacing:.14em;}
+.sk-search{display:flex; align-items:center; gap:8px; padding:11px 14px; cursor:text;
+  font-size:13px; color:var(--sk-pencil);
+  background:#fff; border:2px solid var(--sk-ink); border-radius:999px 999px 999px 14px;
+  box-shadow:2px 3px 0 rgba(58,54,48,.85);}
+.sk-search .g{margin-left:auto; font-size:11px; font-weight:500; color:var(--sk-ink);
+  border:1.5px solid var(--sk-ink); border-radius:999px 12px 999px 12px; padding:2px 10px;
+  background:rgba(190,220,255,.5); transform:rotate(-1.5deg);}
+.sk-btns{display:flex; flex-wrap:wrap; gap:8px;}
+.sk-btn{padding:6px 12px; cursor:pointer; font-size:12px; color:var(--sk-ink);
+  background:#fff; border:2px solid var(--sk-ink);
+  border-radius:200px 14px 180px 14px/14px 180px 14px 200px;
+  box-shadow:2px 2px 0 rgba(58,54,48,.85);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.sk-btn:nth-child(2n){border-radius:14px 200px 14px 180px/180px 14px 200px 14px;}
+.sk-btn:hover{transform:rotate(-3deg) scale(1.08);}
+.sk-btn:active{transform:scale(.9) rotate(2deg); box-shadow:1px 1px 0 rgba(58,54,48,.85);}
+.sk-hint{font-size:11px; color:var(--sk-pencil); font-style:italic;}
+.sk-themes{display:flex; align-items:center; gap:12px; font-size:10px; letter-spacing:.18em; color:var(--sk-pencil);}
+.sk-dot{width:14px; height:14px; border-radius:50%; cursor:pointer; border:2px solid var(--sk-ink);
+  box-shadow:1.5px 1.5px 0 rgba(58,54,48,.85);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+.sk-dot:hover{transform:scale(1.4) rotate(15deg);}
+
+/* ===== groups ===== */
+.groups{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px;}
+.gcard{padding:20px 16px 16px; display:flex; flex-direction:column; gap:13px;}
+.gcard:nth-child(2n){transform:rotate(.6deg);}
+.gcard:nth-child(3n){transform:rotate(-.7deg);}
+.gcard:nth-child(2n):hover{transform:rotate(-.6deg) translateY(-3px);}
+.gcard:nth-child(3n):hover{transform:rotate(.9deg) translateY(-3px);}
+.ghead{display:flex; align-items:center; gap:8px;}
+.gdot{width:9px;height:9px;border-radius:50%; border:2px solid var(--sk-ink);}
+.gtitle{font-size:14px; font-weight:500; color:var(--sk-ink); position:relative;}
+.gcount{font-size:11px; color:var(--sk-pencil); border:1.5px dashed var(--sk-pencil);
+  padding:1px 8px; border-radius:999px 10px 999px 10px; transform:rotate(-1deg);}
+.gadd{margin-left:auto; width:22px;height:22px; cursor:pointer; font-size:15px; line-height:1;
+  color:var(--sk-ink); background:rgba(255,224,102,.6); border:2px solid var(--sk-ink); border-radius:50% 45% 48% 52%;
+  box-shadow:1.5px 1.5px 0 rgba(58,54,48,.85);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.gadd:hover{transform:rotate(90deg) scale(1.25);}
+.gtiles{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.gtile{display:flex; flex-direction:column; align-items:center; gap:7px; padding:11px 4px 9px;
+  cursor:pointer; background:#fff;
+  border:2px solid var(--sk-ink);
+  border-radius:200px 14px 180px 14px/14px 180px 14px 200px;
+  box-shadow:2px 3px 0 rgba(58,54,48,.85);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.gtile:nth-child(2n){border-radius:14px 200px 14px 180px/180px 14px 200px 14px;}
+.gtile:nth-child(3n){border-radius:180px 16px 200px 16px/16px 200px 16px 180px;}
+.gtile:hover{transform:scale(1.1) rotate(-2deg);}
+.gtile:active{transform:scale(.9) rotate(2deg); box-shadow:1px 1px 0 rgba(58,54,48,.85);}
+.gico{width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:500; color:var(--sk-ink);
+  border:2.5px solid var(--sk-ink); border-radius:52% 48% 55% 45%/48% 55% 45% 52%;
+  background:rgba(190,220,255,.4);
+  box-shadow:inset 2px 2px 0 rgba(58,54,48,.08);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.gtile:hover .gico{transform:rotate(-10deg) scale(1.12);}
+.gname{font-size:11.5px; color:var(--sk-pencil); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+</style>
+
+<!-- corner doodles -->
+<svg class="sk-scribble" style="top:14px;right:20px" width="90" height="40" viewBox="0 0 90 40" fill="none">
+  <path d="M4 30 Q20 6 34 22 T62 18 T86 10" stroke="#b04a3a" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M70 26 q6 -8 12 0" stroke="#3a3630" stroke-width="2" stroke-linecap="round"/>
+</svg>
+<svg class="sk-scribble" style="bottom:16px;left:24px" width="70" height="34" viewBox="0 0 70 34" fill="none">
+  <path d="M4 24 Q16 4 28 18 T52 14 T66 8" stroke="#4a6fa5" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
+
+<div class="sk-wrap">
+  <!-- sidebar -->
+  <div class="side sk r1">
+    <div class="tape"></div>
+    <div class="lbl">local time · hangzhou</div>
+    <div class="sk-clock" id="sclock">17:06<small>:57</small></div>
+    <div class="sk-date"><span class="hl" id="sdate">2026年9月8日 星期二</span></div>
+    <div class="sk-stats"><span>43 SITES</span><span>·</span><span>08 GROUPS</span><span>·</span><span>BROWSE</span></div>
+    <div class="sk-search" data-p>› 输入关键词，直接回车搜索…<span class="g">G Google</span></div>
+    <div class="sk-btns">
+      <button class="sk-btn" data-p>✎ 编辑</button>
+      <button class="sk-btn" data-p>纸 · 海蓝 ▾</button>
+      <button class="sk-btn" data-p>⬇ 导出</button>
+      <button class="sk-btn" data-p>⬆ 导入</button>
+      <button class="sk-btn" data-p>⬆ 导入配置</button>
+      <button class="sk-btn" data-p>↺ 恢复默认</button>
+    </div>
+    <div class="sk-hint">提示 · 涂鸦模式下点击会像被橡皮擦蹭了一下。</div>
+    <div class="sk-themes">
+      <span class="sk-dot" style="background:#3a3630" data-p></span>
+      <span class="sk-dot" style="background:#f6f1e5" data-p></span>
+      <span class="sk-dot" style="background:#8fb8e8" data-p></span>
+      <span class="sk-dot" style="background:#e8735a" data-p></span>
+      <span>INK · PAPER · COBALT · STAMP</span>
+    </div>
+  </div>
+
+  <!-- groups -->
+  <div class="groups" id="sgroups"></div>
+</div>
+
+<script>
+const CRAYON=[['#ffd9a8','#f5b96e'],['#cfe3ff','#9cc0f0'],['#d5f2dc','#9ed9ae'],['#e8ddff','#c2aef0'],['#ffe3d1','#f0b48f'],['#d1ecf5','#8fc6dd'],['#ffd6e6','#efa8c4'],['#f2f0c9','#d9d47f']];
+const GROUPS=[
+ {t:'AI',c:'9 项',d:'#5b8cff',sites:['ChatGPT','Minimax','OpenCode','Kimi AI','Gemini','DeepSeek','豆包','Skill 商店','The Agent']},
+ {t:'娱乐 / 社交',c:'6 项',d:'#ff6b9d',sites:['GitHub','Bilibili','YouTube','Twitter','抖音','Telegram']},
+ {t:'学习 / 资讯',c:'4 项',d:'#2fb8a6',sites:['知乎','掘金','MDN','Macked']},
+ {t:'内网服务',c:'6 项',d:'#f2994a',sites:['LLM Monitor','Node Export','MCPHUB','OpenMeta','DSH','Hermes']},
+ {t:'招聘信息',c:'4 项',d:'#eb5757',sites:['Boss直聘','猎聘','招聘网','脉脉']},
+ {t:'网络',c:'6 项',d:'#9b51e0',sites:['良心云','Nerwo','ESXI','iStoreos','iKuai','Redmi Router']},
+ {t:'工作',c:'6 项',d:'#56ccf2',sites:['Vercel','Figma','Gmail','Google Calendar','网易邮箱','Google Tasks']},
+ {t:'个人社媒',c:'2 项',d:'#f2c94c',sites:['张勇-大数据','张勇-大数据']}
+];
+const hash=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h;};
+document.getElementById('sgroups').innerHTML=GROUPS.map((g,i)=>`
+ <div class="gcard sk r${i%3}">
+  <div class="tape" style="transform:translateX(-50%) rotate(${i%2?3:-5}deg)"></div>
+  <div class="ghead">
+    <span class="gdot" style="background:${g.d}22; border-color:${g.d}"></span>
+    <span class="gtitle">${g.t}</span>
+    <span class="gcount">${g.c}</span>
+    <button class="gadd" data-p>+</button>
+  </div>
+  <div class="gtiles">${g.sites.map(s=>{
+    const c=CRAYON[hash(s)%CRAYON.length];
+    return `<div class="gtile" data-p><div class="gico" style="background:linear-gradient(150deg, ${c[0]}, ${c[1]}55)">${[...s][0].toUpperCase()}</div><div class="gname">${s}</div></div>`;
+  }).join('')}</div>
+ </div>`).join('');
+
+function pop(el){el.classList.remove('scribble-pop');void el.offsetWidth;el.classList.add('scribble-pop');}
+document.querySelector('.sk-root').addEventListener('click',e=>{
+  const t=e.target.closest('[data-p]'); if(t) pop(t);
+});
+
+function tick(){
+  const n=new Date(),p=x=>String(x).padStart(2,'0');
+  document.getElementById('sclock').innerHTML=`${p(n.getHours())}:${p(n.getMinutes())}<small>:${p(n.getSeconds())}</small>`;
+  document.getElementById('sdate').textContent=`${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${'日一二三四五六'[n.getDay()]}`;
+}
+tick(); setInterval(tick,1000);
+</script>
+</div></body>
+</html>

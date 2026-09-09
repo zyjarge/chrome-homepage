@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>果冻风 · 新标签页预览</title>
+<style>
+:root{
+  --kimi-font-sans: system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --kimi-font-mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --kimi-color-text-primary:#1a1a1a;
+  --kimi-color-text-secondary:#575757;
+  --kimi-color-text-tertiary:#8a8a8a;
+  --kimi-color-text-quaternary:#b3b3b3;
+}
+html,body{margin:0;padding:0;}
+body{background:#efeff2;min-height:100vh;}
+</style>
+</head>
+<body>
+<div class="jelly-root">
+<style>
+.jelly-root{
+  --j-pink:#ffd9e8; --j-blue:#cfe5ff; --j-mint:#d7f5e8; --j-lav:#e6ddff; --j-peach:#ffe8cf;
+  font-family:var(--kimi-font-sans,sans-serif);
+  position:relative; overflow:hidden;
+  padding:28px; border-radius:24px;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, var(--j-pink), transparent 60%),
+    radial-gradient(1000px 700px at 90% 0%, var(--j-blue), transparent 55%),
+    radial-gradient(900px 700px at 50% 110%, var(--j-lav), transparent 60%),
+    linear-gradient(180deg,#fdfbff, #f4f7ff);
+}
+.jelly-root button{font:inherit;}
+.jelly-root *{box-sizing:border-box;}
+.j-grid-bg{position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:linear-gradient(rgba(120,140,200,.10) 1px,transparent 1px),
+    linear-gradient(90deg, rgba(120,140,200,.10) 1px,transparent 1px);
+  background-size:34px 34px;}
+.j-blob{position:absolute; border-radius:50%; filter:blur(46px); opacity:.55; pointer-events:none;
+  animation:jFloat 9s ease-in-out infinite;}
+.j-blob.b1{width:220px;height:220px;background:var(--j-pink);top:-60px;left:30%;}
+.j-blob.b2{width:180px;height:180px;background:var(--j-mint);bottom:-40px;right:8%;animation-delay:-3s;}
+.j-blob.b3{width:150px;height:150px;background:var(--j-peach);top:40%;left:-40px;animation-delay:-6s;}
+@keyframes jFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-22px) scale(1.08)}}
+
+.j-wrap{position:relative; display:grid; grid-template-columns:290px 1fr; gap:20px; align-items:start;}
+
+/* ===== jelly material ===== */
+.jelly{
+  background:rgba(255,255,255,.48);
+  backdrop-filter:blur(18px) saturate(1.4);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 18px 40px -18px rgba(120,110,200,.35), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -8px 18px -12px rgba(140,130,220,.25);
+  border-radius:26px;
+  transition:transform .35s cubic-bezier(.34,1.8,.5,1), box-shadow .35s ease;
+}
+.jelly:hover{transform:scale(1.02) rotate(-.3deg);
+  box-shadow:0 26px 50px -18px rgba(120,110,200,.45), inset 0 1px 0 rgba(255,255,255,.95), inset 0 -8px 18px -12px rgba(140,130,220,.3);}
+.jelly.squish{animation:jSquish .55s cubic-bezier(.34,1.56,.64,1);}
+@keyframes jSquish{
+  0%{transform:scale(1)} 25%{transform:scale(1.08,.9)} 50%{transform:scale(.94,1.06)}
+  70%{transform:scale(1.03,.97)} 100%{transform:scale(1)}}
+
+/* ===== sidebar ===== */
+.side{padding:24px 20px; display:flex; flex-direction:column; gap:16px; position:sticky; top:0;}
+.side .lbl{font-size:11px; letter-spacing:.22em; color:var(--kimi-color-text-tertiary); text-transform:uppercase;}
+.j-clock{font-size:52px; font-weight:500; line-height:1.05; letter-spacing:0;
+  font-variant-numeric:tabular-nums; color:var(--kimi-color-text-primary);
+  text-shadow:0 2px 0 rgba(255,255,255,.8);}
+.j-clock small{font-size:22px; color:var(--kimi-color-text-tertiary);}
+.j-date{font-size:13px; color:var(--kimi-color-text-secondary);}
+.j-stats{display:flex; gap:10px; font-size:11px; color:var(--kimi-color-text-tertiary); letter-spacing:.14em;}
+.j-search{display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:999px; cursor:text;
+  background:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.85);
+  box-shadow:inset 0 2px 6px rgba(150,140,220,.18); font-size:13px; color:var(--kimi-color-text-tertiary);}
+.j-search .g{margin-left:auto; font-size:11px; font-weight:500; color:var(--kimi-color-text-secondary);
+  background:rgba(255,255,255,.8); padding:3px 10px; border-radius:999px; box-shadow:0 2px 5px rgba(150,140,220,.25);}
+.j-btns{display:flex; flex-wrap:wrap; gap:8px;}
+.j-btn{padding:7px 13px; border-radius:999px; font-size:12px; cursor:pointer;
+  color:var(--kimi-color-text-secondary); border:1px solid rgba(255,255,255,.9);
+  background:rgba(255,255,255,.55); box-shadow:0 4px 10px -4px rgba(150,140,220,.3);
+  transition:transform .3s cubic-bezier(.34,1.8,.5,1);}
+.j-btn:hover{transform:scale(1.1); color:var(--kimi-color-text-primary);}
+.j-btn:active{transform:scale(.92);}
+.j-themes{display:flex; align-items:center; gap:14px; font-size:10px; letter-spacing:.18em; color:var(--kimi-color-text-tertiary);}
+.j-dot{width:12px; height:12px; border-radius:50%; cursor:pointer; border:2px solid rgba(255,255,255,.9);
+  box-shadow:0 2px 6px rgba(0,0,0,.15); transition:transform .3s cubic-bezier(.34,1.8,.5,1);}
+.j-dot:hover{transform:scale(1.5);}
+.j-hint{font-size:11px; color:var(--kimi-color-text-quaternary);}
+
+/* ===== groups ===== */
+.groups{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px;}
+.gcard{padding:16px; display:flex; flex-direction:column; gap:13px;}
+.ghead{display:flex; align-items:center; gap:8px;}
+.gdot{width:8px;height:8px;border-radius:50%;}
+.gtitle{font-size:14px; font-weight:500; color:var(--kimi-color-text-primary);}
+.gcount{font-size:11px; color:var(--kimi-color-text-tertiary); background:rgba(255,255,255,.65);
+  padding:2px 9px; border-radius:999px; box-shadow:inset 0 1px 3px rgba(150,140,220,.15);}
+.gadd{margin-left:auto; width:22px;height:22px;border-radius:50%; border:none; cursor:pointer; font-size:14px; line-height:1;
+  color:#fff; background:var(--kimi-color-text-primary); box-shadow:0 4px 8px -2px rgba(0,0,0,.3);
+  transition:transform .35s cubic-bezier(.34,1.8,.5,1);}
+.gadd:hover{transform:rotate(90deg) scale(1.2);}
+.gtiles{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.gtile{display:flex; flex-direction:column; align-items:center; gap:7px; padding:12px 4px 10px;
+  border-radius:18px; cursor:pointer;
+  background:rgba(255,255,255,.5); border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 6px 14px -8px rgba(140,130,220,.35), inset 0 1px 0 rgba(255,255,255,.9);
+  transition:transform .35s cubic-bezier(.34,1.8,.5,1), background .3s;}
+.gtile:hover{transform:scale(1.12) translateY(-3px); background:rgba(255,255,255,.85);}
+.gtile:active{transform:scale(.9);}
+.gtile.squish{animation:jSquish .5s cubic-bezier(.34,1.56,.64,1);}
+.gico{width:38px; height:38px; border-radius:13px; display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:500; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.15);
+  box-shadow:inset 0 -4px 8px -3px rgba(0,0,0,.18), inset 0 2px 3px rgba(255,255,255,.5), 0 4px 8px -3px rgba(140,130,220,.4);
+  transition:transform .35s cubic-bezier(.34,1.8,.5,1);}
+.gtile:hover .gico{transform:rotate(-8deg) scale(1.12);}
+.gname{font-size:11.5px; color:var(--kimi-color-text-secondary); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+</style>
+
+<div class="j-grid-bg"></div>
+<div class="j-blob b1"></div><div class="j-blob b2"></div><div class="j-blob b3"></div>
+
+<div class="j-wrap">
+  <!-- sidebar -->
+  <div class="side jelly">
+    <div class="lbl">local time · hangzhou</div>
+    <div class="j-clock" id="jclock">17:06<small>:57</small></div>
+    <div class="j-date" id="jdate">2026年9月8日 星期二</div>
+    <div class="j-stats"><span>43 SITES</span><span>·</span><span>08 GROUPS</span><span>·</span><span>BROWSE</span></div>
+    <div class="j-search" id="jsearch">› 输入关键词，直接回车搜索…<span class="g">G Google</span></div>
+    <div class="j-btns">
+      <button class="j-btn" data-s>✎ 编辑</button>
+      <button class="j-btn" data-s>纸 · 海蓝 ▾</button>
+      <button class="j-btn" data-s>⬇ 导出</button>
+      <button class="j-btn" data-s>⬆ 导入</button>
+      <button class="j-btn" data-s>⬆ 导入配置</button>
+      <button class="j-btn" data-s>↺ 恢复默认</button>
+    </div>
+    <div class="j-hint">提示 · 果冻模式下点击会 Q 弹，捏一捏更解压。</div>
+    <div class="j-themes">
+      <span class="j-dot" style="background:#3b3b44" data-s></span>
+      <span class="j-dot" style="background:#f6f3ea" data-s></span>
+      <span class="j-dot" style="background:#8fb8e8" data-s></span>
+      <span class="j-dot" style="background:#e8735a" data-s></span>
+      <span>INK · PAPER · COBALT · STAMP</span>
+    </div>
+  </div>
+
+  <!-- groups -->
+  <div class="groups" id="jgroups"></div>
+</div>
+
+<script>
+const PALETTES=[['#ff9fbe','#ffb7cf'],['#8fb8ff','#a9c8ff'],['#7fd8b8','#a4e6cd'],['#b9a5ff','#cdbfff'],['#ffb37f','#ffcda1'],['#7fc4e8','#a4d9f2'],['#e88fb8','#f3b3d1'],['#9fd47f','#c2e6a8']];
+const GROUPS=[
+ {t:'AI',c:'9 项',d:'#5b8cff',sites:['ChatGPT','Minimax','OpenCode','Kimi AI','Gemini','DeepSeek','豆包','Skill 商店','The Agent']},
+ {t:'娱乐 / 社交',c:'6 项',d:'#ff6b9d',sites:['GitHub','Bilibili','YouTube','Twitter','抖音','Telegram']},
+ {t:'学习 / 资讯',c:'4 项',d:'#2fb8a6',sites:['知乎','掘金','MDN','Macked']},
+ {t:'内网服务',c:'6 项',d:'#f2994a',sites:['LLM Monitor','Node Export','MCPHUB','OpenMeta','DSH','Hermes']},
+ {t:'招聘信息',c:'4 项',d:'#eb5757',sites:['Boss直聘','猎聘','招聘网','脉脉']},
+ {t:'网络',c:'6 项',d:'#9b51e0',sites:['良心云','Nerwo','ESXI','iStoreos','iKuai','Redmi Router']},
+ {t:'工作',c:'6 项',d:'#56ccf2',sites:['Vercel','Figma','Gmail','Google Calendar','网易邮箱','Google Tasks']},
+ {t:'个人社媒',c:'2 项',d:'#f2c94c',sites:['张勇-大数据','张勇-大数据']}
+];
+const hash=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h;};
+const root=document.getElementById('jgroups');
+root.innerHTML=GROUPS.map(g=>`
+ <div class="gcard jelly">
+  <div class="ghead">
+    <span class="gdot" style="background:${g.d}"></span>
+    <span class="gtitle">${g.t}</span>
+    <span class="gcount">${g.c}</span>
+    <button class="gadd" data-s>+</button>
+  </div>
+  <div class="gtiles">${g.sites.map(s=>{
+    const p=PALETTES[hash(s)%PALETTES.length];
+    const letter=[...s][0].toUpperCase();
+    return `<div class="gtile" data-s><div class="gico" style="background:linear-gradient(145deg,${p[0]},${p[1]})">${letter}</div><div class="gname">${s}</div></div>`;
+  }).join('')}</div>
+ </div>`).join('');
+
+// squish interaction (event delegation)
+function squish(el){el.classList.remove('squish');void el.offsetWidth;el.classList.add('squish');}
+document.querySelector('.jelly-root').addEventListener('click',e=>{
+  const t=e.target.closest('[data-s]'); if(t) squish(t);
+});
+
+// live clock
+function tick(){
+  const n=new Date();
+  const p=x=>String(x).padStart(2,'0');
+  const wd='日一二三四五六'[n.getDay()];
+  document.getElementById('jclock').innerHTML=`${p(n.getHours())}:${p(n.getMinutes())}<small>:${p(n.getSeconds())}</small>`;
+  document.getElementById('jdate').textContent=`${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${wd}`;
+}
+tick(); setInterval(tick,1000);
+</script>
+</div></body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>黏土风 · 新标签页预览</title>
+<style>
+:root{
+  --kimi-font-sans: system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --kimi-font-mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --kimi-color-text-primary:#1a1a1a;
+  --kimi-color-text-secondary:#575757;
+  --kimi-color-text-tertiary:#8a8a8a;
+  --kimi-color-text-quaternary:#b3b3b3;
+}
+html,body{margin:0;padding:0;}
+body{background:#efeff2;min-height:100vh;}
+</style>
+</head>
+<body>
+<div class="clay-root">
+<style>
+.clay-root{
+  font-family:var(--kimi-font-sans,sans-serif);
+  position:relative; overflow:hidden; padding:30px; border-radius:24px;
+  background:
+    radial-gradient(900px 500px at 12% 0%, rgba(255,214,190,.6), transparent 55%),
+    radial-gradient(800px 500px at 92% 8%, rgba(190,214,255,.55), transparent 55%),
+    radial-gradient(700px 500px at 55% 115%, rgba(214,236,205,.55), transparent 60%),
+    linear-gradient(180deg,#fbf3ec,#f3ebe2);
+}
+.clay-root button{font:inherit;}
+.clay-root *{box-sizing:border-box;}
+.clay-grain{position:absolute; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:multiply;
+  background-image:radial-gradient(rgba(120,90,70,.06) 1px, transparent 1.4px);
+  background-size:7px 7px;}
+.clay-shade{position:absolute; border-radius:50%; filter:blur(38px); opacity:.4; pointer-events:none;
+  background:radial-gradient(circle at 40% 35%, rgba(255,255,255,.8), transparent 62%);
+  animation:clDrift 10s ease-in-out infinite;}
+@keyframes clDrift{0%,100%{transform:translate(0,0)}50%{transform:translate(14px,-16px)}}
+
+.clay-wrap{position:relative; display:grid; grid-template-columns:290px 1fr; gap:22px; align-items:start;}
+
+/* ===== clay material ===== */
+.clay{
+  position:relative;
+  background:linear-gradient(155deg, var(--c1,#fff8f2), var(--c2,#f2e6da));
+  border-radius:32px;
+  box-shadow:
+    0 20px 34px -16px rgba(110,80,60,.45),
+    0 4px 8px -2px rgba(110,80,60,.18),
+    inset 0 3px 6px rgba(255,255,255,.85),
+    inset 0 -12px 22px -10px rgba(110,80,60,.35);
+  transition:transform .5s cubic-bezier(.28,1.4,.42,1), box-shadow .5s ease;
+}
+.clay:hover{transform:translateY(-4px) rotate(-.4deg);
+  box-shadow:0 28px 42px -16px rgba(110,80,60,.5), 0 4px 8px -2px rgba(110,80,60,.18),
+    inset 0 3px 6px rgba(255,255,255,.85), inset 0 -12px 22px -10px rgba(110,80,60,.35);}
+.clay.mold{animation:clMold .9s cubic-bezier(.28,1.3,.42,1);}
+@keyframes clMold{
+  0%{transform:scale(1)} 28%{transform:scale(1.07,.86)} 52%{transform:scale(.93,1.07)}
+  72%{transform:scale(1.03,.97)} 100%{transform:scale(1)}}
+.clay::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(120% 90% at 28% 8%, rgba(255,255,255,.55), transparent 45%);}
+
+/* ===== sidebar ===== */
+.side{padding:28px 22px; display:flex; flex-direction:column; gap:16px; --c1:#fffaf4; --c2:#f4e8db;}
+.side .lbl{font-size:11px; letter-spacing:.22em; color:#a08772; text-transform:uppercase;}
+.clay-clock{font-size:50px; font-weight:500; line-height:1.08; letter-spacing:0;
+  font-variant-numeric:tabular-nums; color:#5d4a3a;
+  text-shadow:0 2px 0 rgba(255,255,255,.7), 0 -1px 1px rgba(110,80,60,.2);}
+.clay-clock small{font-size:21px; color:#a08772;}
+.clay-date{font-size:13px; color:#8d7258;}
+.clay-stats{display:flex; gap:10px; font-size:11px; color:#a08772; letter-spacing:.14em;}
+.clay-search{display:flex; align-items:center; gap:8px; padding:13px 15px; border-radius:999px; cursor:text;
+  font-size:13px; color:#a08772;
+  background:linear-gradient(160deg,#fff,#f1e5d8);
+  box-shadow:inset 0 4px 10px rgba(110,80,60,.28), inset 0 -2px 4px rgba(255,255,255,.8);}
+.clay-search .g{margin-left:auto; font-size:11px; font-weight:500; color:#fff; padding:3px 11px; border-radius:999px;
+  background:linear-gradient(160deg,#8fa8c9,#6e88ab);
+  box-shadow:0 3px 6px -2px rgba(90,110,140,.6), inset 0 2px 3px rgba(255,255,255,.4);}
+.clay-btns{display:flex; flex-wrap:wrap; gap:9px;}
+.clay-btn{padding:8px 13px; border-radius:999px; cursor:pointer; font-size:12px; color:#5d4a3a;
+  background:linear-gradient(160deg,#fff8f0,#ecdccf); border:none;
+  box-shadow:0 5px 10px -4px rgba(110,80,60,.5), inset 0 2px 3px rgba(255,255,255,.9), inset 0 -3px 6px -2px rgba(110,80,60,.3);
+  transition:transform .4s cubic-bezier(.28,1.5,.42,1);}
+.clay-btn:hover{transform:scale(1.1) translateY(-2px);}
+.clay-btn:active{transform:scale(.88);}
+.clay-hint{font-size:11px; color:#b39a83;}
+.clay-themes{display:flex; align-items:center; gap:13px; font-size:10px; letter-spacing:.18em; color:#a08772;}
+.clay-dot{width:15px; height:15px; border-radius:50%; cursor:pointer;
+  box-shadow:0 3px 6px -2px rgba(110,80,60,.5), inset 0 -4px 5px rgba(0,0,0,.2), inset 0 3px 4px rgba(255,255,255,.55);
+  transition:transform .4s cubic-bezier(.28,1.6,.42,1);}
+.clay-dot:hover{transform:scale(1.5);}
+
+/* ===== groups ===== */
+.groups{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:20px;}
+.gcard{padding:20px 17px; display:flex; flex-direction:column; gap:14px;}
+.ghead{display:flex; align-items:center; gap:8px;}
+.gdot{width:11px; height:11px; border-radius:50%;
+  background:radial-gradient(circle at 34% 30%, #fff8, transparent 50%), var(--gd,#c9a88f);
+  box-shadow:0 2px 4px -1px rgba(110,80,60,.5), inset 0 -3px 4px rgba(0,0,0,.2);}
+.gtitle{font-size:14px; font-weight:500; color:#5d4a3a;}
+.gcount{font-size:11px; color:#8d7258; padding:3px 10px; border-radius:999px;
+  background:linear-gradient(160deg,#fff,#efe2d4);
+  box-shadow:inset 0 2px 5px rgba(110,80,60,.25), inset 0 -1px 2px rgba(255,255,255,.8);}
+.gadd{margin-left:auto; width:24px;height:24px;border:none; cursor:pointer; font-size:15px; line-height:1; color:#fff;
+  border-radius:50%; background:linear-gradient(160deg,#9a7f68,#7a6150);
+  box-shadow:0 4px 8px -3px rgba(90,70,55,.7), inset 0 2px 3px rgba(255,255,255,.4), inset 0 -3px 5px rgba(0,0,0,.3);
+  transition:transform .5s cubic-bezier(.28,1.5,.42,1);}
+.gadd:hover{transform:rotate(90deg) scale(1.25);}
+.gtiles{display:grid; grid-template-columns:repeat(3,1fr); gap:11px;}
+.gtile{display:flex; flex-direction:column; align-items:center; gap:8px; padding:13px 4px 11px;
+  border-radius:22px; cursor:pointer;
+  background:linear-gradient(160deg,#fffaf4,#f0e4d7);
+  box-shadow:0 8px 16px -9px rgba(110,80,60,.55), inset 0 2px 4px rgba(255,255,255,.9), inset 0 -7px 12px -6px rgba(110,80,60,.35);
+  transition:transform .5s cubic-bezier(.28,1.5,.42,1);}
+.gtile:hover{transform:scale(1.1) translateY(-4px) rotate(1deg);}
+.gtile:active{transform:scale(.86);}
+.gtile.mold{animation:clMold .8s cubic-bezier(.28,1.3,.42,1);}
+.gico{width:40px; height:40px; border-radius:46% 54% 52% 48%/52% 48% 54% 46%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:500; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.2);
+  background:radial-gradient(circle at 32% 26%, rgba(255,255,255,.75), transparent 42%), linear-gradient(160deg, var(--a), var(--b));
+  box-shadow:0 5px 9px -4px rgba(110,80,60,.6), inset 0 -6px 9px -4px rgba(0,0,0,.28), inset 0 3px 5px rgba(255,255,255,.5);
+  transition:transform .5s cubic-bezier(.28,1.5,.42,1);}
+.gtile:hover .gico{transform:rotate(-9deg) scale(1.14);}
+.gname{font-size:11.5px; color:#8d7258; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+</style>
+
+<div class="clay-grain"></div>
+<div class="clay-shade" style="width:260px;height:260px;top:-50px;left:28%"></div>
+<div class="clay-shade" style="width:190px;height:190px;bottom:-40px;right:8%;animation-delay:-4s"></div>
+
+<div class="clay-wrap">
+  <div class="side clay">
+    <div class="lbl">local time · hangzhou</div>
+    <div class="clay-clock" id="cclock">17:06<small>:57</small></div>
+    <div class="clay-date" id="cdate">2026年9月8日 星期二</div>
+    <div class="clay-stats"><span>43 SITES</span><span>·</span><span>08 GROUPS</span><span>·</span><span>BROWSE</span></div>
+    <div class="clay-search" data-c>› 输入关键词，直接回车搜索…<span class="g">G Google</span></div>
+    <div class="clay-btns">
+      <button class="clay-btn" data-c>✎ 编辑</button>
+      <button class="clay-btn" data-c>纸 · 海蓝 ▾</button>
+      <button class="clay-btn" data-c>⬇ 导出</button>
+      <button class="clay-btn" data-c>⬆ 导入</button>
+      <button class="clay-btn" data-c>⬆ 导入配置</button>
+      <button class="clay-btn" data-c>↺ 恢复默认</button>
+    </div>
+    <div class="clay-hint">提示 · 黏土模式按压会留下指纹般的慢回弹。</div>
+    <div class="clay-themes">
+      <span class="clay-dot" style="background:#4a3f38" data-c></span>
+      <span class="clay-dot" style="background:#f3ead9" data-c></span>
+      <span class="clay-dot" style="background:#a9c3e2" data-c></span>
+      <span class="clay-dot" style="background:#e59a83" data-c></span>
+      <span>INK · PAPER · COBALT · STAMP</span>
+    </div>
+  </div>
+  <div class="groups" id="cgroups"></div>
+</div>
+
+<script>
+const CLAY=[['#f2a08c','#d4705a'],['#8fb0d9','#5d84b8'],['#9ccfa8','#5fa877'],['#b8a3dd','#8468b8'],['#f0bd8a','#d68f4e'],['#8cc6d4','#559aac'],['#e3a2b8','#c06e90'],['#d4cf8e','#a8a25a']];
+const GROUPS=[
+ {t:'AI',c:'9 项',d:'#c98a6b',sites:['ChatGPT','Minimax','OpenCode','Kimi AI','Gemini','DeepSeek','豆包','Skill 商店','The Agent']},
+ {t:'娱乐 / 社交',c:'6 项',d:'#d96b85',sites:['GitHub','Bilibili','YouTube','Twitter','抖音','Telegram']},
+ {t:'学习 / 资讯',c:'4 项',d:'#6ba888',sites:['知乎','掘金','MDN','Macked']},
+ {t:'内网服务',c:'6 项',d:'#d99a5b',sites:['LLM Monitor','Node Export','MCPHUB','OpenMeta','DSH','Hermes']},
+ {t:'招聘信息',c:'4 项',d:'#d95f5b',sites:['Boss直聘','猎聘','招聘网','脉脉']},
+ {t:'网络',c:'6 项',d:'#9a7fc0',sites:['良心云','Nerwo','ESXI','iStoreos','iKuai','Redmi Router']},
+ {t:'工作',c:'6 项',d:'#6ba8c0',sites:['Vercel','Figma','Gmail','Google Calendar','网易邮箱','Google Tasks']},
+ {t:'个人社媒',c:'2 项',d:'#c9b45b',sites:['张勇-大数据','张勇-大数据']}
+];
+const hash=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h;};
+document.getElementById('cgroups').innerHTML=GROUPS.map(g=>`
+ <div class="gcard clay">
+  <div class="ghead">
+    <span class="gdot" style="--gd:${g.d}"></span>
+    <span class="gtitle">${g.t}</span>
+    <span class="gcount">${g.c}</span>
+    <button class="gadd" data-c>+</button>
+  </div>
+  <div class="gtiles">${g.sites.map(s=>{
+    const c=CLAY[hash(s)%CLAY.length];
+    return `<div class="gtile" data-c><div class="gico" style="--a:${c[0]};--b:${c[1]}">${[...s][0].toUpperCase()}</div><div class="gname">${s}</div></div>`;
+  }).join('')}</div>
+ </div>`).join('');
+
+function mold(el){el.classList.remove('mold');void el.offsetWidth;el.classList.add('mold');}
+document.querySelector('.clay-root').addEventListener('click',e=>{
+  const t=e.target.closest('[data-c]'); if(t) mold(t);
+});
+function tick(){
+  const n=new Date(),p=x=>String(x).padStart(2,'0');
+  document.getElementById('cclock').innerHTML=`${p(n.getHours())}:${p(n.getMinutes())}<small>:${p(n.getSeconds())}</small>`;
+  document.getElementById('cdate').textContent=`${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日 星期${'日一二三四五六'[n.getDay()]}`;
+}
+tick(); setInterval(tick,1000);
+</script>
+</div></body>
+</html>
