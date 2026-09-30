@@ -44,9 +44,9 @@ a{color:inherit}
 :focus-visible{outline:2px solid var(--cobalt);outline-offset:2px}
 ::selection{background:var(--ink);color:#fff}
 .app{
-  max-width:1280px;margin:0 auto;
-  display:grid;grid-template-columns:360px 1fr;
-  gap:32px;padding:28px 24px 48px;
+  max-width:min(3840px,100%);margin:0 auto;
+  display:grid;grid-template-columns:clamp(340px,21vw,440px) minmax(0,1fr);
+  gap:clamp(24px,2vw,48px);padding:28px clamp(20px,2.5vw,72px) 48px;
   align-items:start;
 }
 .rail{
@@ -165,14 +165,7 @@ a{color:inherit}
   color:var(--muted);font-weight:400;border:1px solid var(--line);padding:3px 7px;border-radius:99px;background:rgba(255,255,255,.7)
 }
 .catalog-head p{font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--muted)}
-#groups-container{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
-@media (min-width:1080px){
-  #groups-container{grid-template-columns:repeat(2, minmax(0,1fr));}
-}
-@media (min-width:1680px){
-  .app{max-width:1600px}
-  #groups-container{grid-template-columns:repeat(3, minmax(0,1fr));}
-}
+#groups-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(440px,100%),1fr));gap:clamp(20px,1.6vw,32px);align-items:start}
 .group{
   position:relative;background:var(--surface);border:1px solid var(--line);
   border-radius:var(--radius);box-shadow:var(--shadow);
@@ -185,6 +178,8 @@ a{color:inherit}
   border-left:1px dashed var(--line-strong);opacity:.9;pointer-events:none;
 }
 .group.drag-over{outline:2px dashed var(--cobalt);outline-offset:2px}
+.group.g-dragging{opacity:.45}
+body.edit-mode .group-tab{cursor:grab}
 .group-tab{
   position:absolute;left:18px;top:-10px;
   display:inline-flex;align-items:center;gap:8px;
@@ -235,6 +230,9 @@ a{color:inherit}
   box-shadow:6px 6px 0 rgba(15,26,46,.08);
 }
 .shortcut-card.dragging{opacity:.4;transform:scale(.98)}
+.shortcut-card.drop-before::after,.shortcut-card.drop-after::after{content:"";position:absolute;top:12%;bottom:12%;width:3px;border-radius:2px;background:var(--cobalt);pointer-events:none}
+.shortcut-card.drop-before::after{left:3px}
+.shortcut-card.drop-after::after{right:3px}
 .shortcut-card .icon{
   width:44px;height:44px;display:grid;place-items:center;
   background:#fff;border:1px solid var(--line);border-radius:12px;
@@ -268,6 +266,14 @@ body.edit-mode .card-actions{opacity:1;transform:translateY(0);pointer-events:au
 .shortcut-card.edit-wiggle{animation:wiggle .28s ease-in-out infinite alternate}
 @keyframes wiggle{from{transform:rotate(-.5deg)}to{transform:rotate(.5deg)}}
 .shortcut-card.edit-wiggle:hover{animation:none;transform:translateY(-3px)}
+@media (min-width:1680px){
+  .shortcut-grid{grid-template-columns:repeat(auto-fill,minmax(136px,1fr))}
+  .shortcut-card{padding:20px 10px 14px;gap:10px}
+  .shortcut-card .icon{width:56px;height:56px;font-size:1.5rem;border-radius:14px}
+  .shortcut-card .icon img{border-radius:13px}
+  .shortcut-card .icon .fallback-letter{border-radius:12px;font-size:1.15rem}
+  .shortcut-card .name{font-size:.85rem}
+}
 .empty-tip{
   grid-column:1/-1;text-align:center;padding:22px 12px;
   font-family:"JetBrains Mono",monospace;font-size:.74rem;color:var(--muted);
@@ -699,7 +705,7 @@ body[data-theme="sketch"] .icon[data-hue="7"]{--ca:#f2f0c9;--cb:#d9d47f}
         <button class="btn" id="btn-manage-groups">⬡ 管理分组</button>
         <button class="btn btn-ghost" id="btn-reset">↺ 重置</button>
       </div>
-      <div class="hint-mini" style="margin-top:10px">编辑模式下可拖拽卡片跨分组移动 · 点击 ✎ / 🗑 修改</div>
+      <div class="hint-mini" style="margin-top:10px">编辑模式下可拖拽卡片调整组内顺序或跨分组移动 · 拖动分组标签可调整分组顺序 · 点击 ✎ / 🗑 修改</div>
     </div>
     <div class="hint-mini reveal" style="animation-delay:.20s" id="always-actions">
       <button class="btn" id="btn-always-import" style="padding:6px 12px;font-size:.72rem">⬆ 导入配置</button>
@@ -750,7 +756,7 @@ body[data-theme="sketch"] .icon[data-hue="7"]{--ca:#f2f0c9;--cb:#d9d47f}
 <script>
 const STORAGE_KEY='glass-new-tab-data-v1',THEME_KEY='glass-new-tab-theme';
 const DEFAULT_DATA={groups:[{id:'g-work',name:'工作 / 常用工具',emoji:'💼'},{id:'g-ent',name:'娱乐 / 社交',emoji:'🎮'},{id:'g-learn',name:'学习 / 资讯',emoji:'📚'}],shortcuts:[{id:'s-1',name:'GitHub',url:'https://github.com',icon:'🐙',groupId:'g-work'},{id:'s-2',name:'Vercel',url:'https://vercel.com',icon:'▲',groupId:'g-work'},{id:'s-3',name:'Figma',url:'https://figma.com',icon:'🎨',groupId:'g-work'},{id:'s-4',name:'ChatGPT',url:'https://chat.openai.com',icon:'🤖',groupId:'g-work'},{id:'s-5',name:'Bilibili',url:'https://bilibili.com',icon:'📺',groupId:'g-ent'},{id:'s-6',name:'YouTube',url:'https://youtube.com',icon:'▶️',groupId:'g-ent'},{id:'s-7',name:'Twitter',url:'https://twitter.com',icon:'🐦',groupId:'g-ent'},{id:'s-8',name:'知乎',url:'https://zhihu.com',icon:'💡',groupId:'g-learn'},{id:'s-9',name:'掘金',url:'https://juejin.cn',icon:'📖',groupId:'g-learn'},{id:'s-10',name:'MDN',url:'https://developer.mozilla.org',icon:'🌐',groupId:'g-learn'}]};
-let state={groups:[],shortcuts:[]},editingLinkId=null,editMode=false;
+let state={groups:[],shortcuts:[]},editingLinkId=null,editMode=false,dragId=null,groupDragId=null,groupDropIndicator=null;
 const els={
   clock:document.getElementById('clock'),
   date:document.getElementById('date'),
@@ -876,6 +882,7 @@ function renderGroups(){
     const code=`${idxMap[index%3]||'G'}-${String(groupShortcuts.length).padStart(2,'0')}`;
     const tab=document.createElement('div');
     tab.className='group-tab';
+    tab.draggable=editMode;
     tab.innerHTML=`<span class="dot"></span> ${escapeHtml(group.emoji||'📁')} ${escapeHtml(group.name)} <span class="count">${code} · ${groupShortcuts.length} 项</span><button class="icon-btn" title="在此分组添加" data-action="add-empty" data-group="${group.id}" style="margin-left:8px;width:22px;height:22px;font-size:.75rem;background:var(--ink);border-color:var(--ink);color:#fff">＋</button>`;
     const grid=document.createElement('div');
     grid.className='shortcut-grid';
@@ -934,6 +941,34 @@ function saveLink(){
   saveData();renderGroups();closeLinkModal();
 }
 function deleteLink(id){if(!confirm('确定删除该快捷？'))return;state.shortcuts=state.shortcuts.filter(s=>s.id!==id);saveData();renderGroups();showToast('已删除','success')}
+function moveShortcut(id,targetGroupId,beforeId){
+  const from=state.shortcuts.findIndex(s=>s.id===id);if(from===-1) return;
+  const [item]=state.shortcuts.splice(from,1);
+  item.groupId=targetGroupId;
+  if(beforeId){
+    const to=state.shortcuts.findIndex(s=>s.id===beforeId);
+    if(to!==-1){state.shortcuts.splice(to,0,item);return}
+  }
+  let idx=state.shortcuts.length;
+  for(let i=state.shortcuts.length-1;i>=0;i--){if(state.shortcuts[i].groupId===targetGroupId){idx=i+1;break}}
+  state.shortcuts.splice(idx,0,item);
+}
+function moveGroup(sourceId,targetId,after){
+  const from=state.groups.findIndex(g=>g.id===sourceId);if(from===-1) return;
+  const [item]=state.groups.splice(from,1);
+  const to=state.groups.findIndex(g=>g.id===targetId);
+  if(to===-1){state.groups.push(item);return}
+  state.groups.splice(after?to+1:to,0,item);
+}
+function showGroupIndicator(targetEl,after){
+  if(!groupDropIndicator){groupDropIndicator=document.createElement('div');groupDropIndicator.style.cssText='position:fixed;width:4px;border-radius:2px;background:var(--cobalt);z-index:900;pointer-events:none;display:none';document.body.appendChild(groupDropIndicator)}
+  const r=targetEl.getBoundingClientRect();
+  groupDropIndicator.style.left=(after?r.right-2:r.left-2)+'px';
+  groupDropIndicator.style.top=(r.top+10)+'px';
+  groupDropIndicator.style.height=Math.max(40,r.height-20)+'px';
+  groupDropIndicator.style.display='block';
+}
+function hideGroupIndicator(){if(groupDropIndicator) groupDropIndicator.style.display='none'}
 function renderGroupsManagement(){
   els.groupsList.innerHTML='';
   if(state.groups.length===0){els.groupsList.innerHTML='<div class="empty-tip">暂无分组</div>';return}
@@ -1028,25 +1063,84 @@ function bindEvents(){
     else if(action==='delete'){if(!editMode) return;e.preventDefault();e.stopPropagation();deleteLink(id)}
   });
   els.container.addEventListener('dragstart',e=>{
-    const card=e.target.closest('.shortcut-card');if(!card||!editMode||e.target.closest('button')){e.preventDefault();return}
+    if(!editMode||e.target.closest('button')){e.preventDefault();return}
+    const tab=e.target.closest('.group-tab');
+    if(tab){
+      const sec=tab.closest('.group');if(!sec) return;
+      groupDragId=sec.dataset.groupId;
+      e.dataTransfer.setData('text/plain',groupDragId);e.dataTransfer.effectAllowed='move';sec.classList.add('g-dragging');
+      return;
+    }
+    const card=e.target.closest('.shortcut-card');if(!card){e.preventDefault();return}
+    dragId=card.dataset.id;
     e.dataTransfer.setData('text/plain',card.dataset.id);e.dataTransfer.effectAllowed='move';card.classList.add('dragging');
   });
-  els.container.addEventListener('dragend',e=>{
-    const card=e.target.closest('.shortcut-card');if(card) card.classList.remove('dragging');
+  els.container.addEventListener('dragend',()=>{
+    dragId=null;groupDragId=null;hideGroupIndicator();
+    document.querySelectorAll('.shortcut-card.dragging').forEach(c=>c.classList.remove('dragging'));
+    document.querySelectorAll('.group.g-dragging').forEach(c=>c.classList.remove('g-dragging'));
     document.querySelectorAll('.group.drag-over').forEach(g=>g.classList.remove('drag-over'));
+    document.querySelectorAll('.shortcut-card.drop-before,.shortcut-card.drop-after').forEach(c=>c.classList.remove('drop-before','drop-after'));
   });
   els.container.addEventListener('dragover',e=>{
-    const g=e.target.closest('.group');if(!g) return;e.preventDefault();e.dataTransfer.dropEffect='move';
+    const g=e.target.closest('.group');
+    if(!g){if(groupDragId) hideGroupIndicator();return}
+    e.preventDefault();e.dataTransfer.dropEffect='move';
+    if(groupDragId){
+      document.querySelectorAll('.group.drag-over').forEach(x=>x.classList.remove('drag-over'));
+      document.querySelectorAll('.shortcut-card.drop-before,.shortcut-card.drop-after').forEach(c=>c.classList.remove('drop-before','drop-after'));
+      if(g.dataset.groupId!==groupDragId){
+        const r=g.getBoundingClientRect();
+        showGroupIndicator(g,e.clientX>r.left+r.width/2);
+      }else hideGroupIndicator();
+      return;
+    }
     document.querySelectorAll('.group.drag-over').forEach(x=>{if(x!==g) x.classList.remove('drag-over')});g.classList.add('drag-over');
+    const card=e.target.closest('.shortcut-card');
+    document.querySelectorAll('.shortcut-card.drop-before,.shortcut-card.drop-after').forEach(c=>{if(c!==card) c.classList.remove('drop-before','drop-after')});
+    if(card&&card.dataset.id!==dragId){
+      const rect=card.getBoundingClientRect();
+      const after=e.clientX>rect.left+rect.width/2;
+      card.classList.toggle('drop-before',!after);card.classList.toggle('drop-after',after);
+    }else if(card){card.classList.remove('drop-before','drop-after')}
   });
   els.container.addEventListener('dragleave',e=>{
     const g=e.target.closest('.group');if(!g) return;if(!g.contains(e.relatedTarget)) g.classList.remove('drag-over');
   });
   els.container.addEventListener('drop',e=>{
     const g=e.target.closest('.group');if(!g) return;e.preventDefault();g.classList.remove('drag-over');
-    const id=e.dataTransfer.getData('text/plain'),target=g.dataset.groupId;if(!id||!target) return;
-    const sc=state.shortcuts.find(s=>s.id===id);if(!sc||sc.groupId===target) return;
-    sc.groupId=target;saveData();renderGroups();showToast('已移动','success');
+    document.querySelectorAll('.shortcut-card.drop-before,.shortcut-card.drop-after').forEach(c=>c.classList.remove('drop-before','drop-after'));
+    if(groupDragId){
+      const gid=groupDragId;groupDragId=null;hideGroupIndicator();
+      document.querySelectorAll('.group.g-dragging').forEach(c=>c.classList.remove('g-dragging'));
+      if(g.dataset.groupId!==gid){
+        const r=g.getBoundingClientRect();
+        const after=e.clientX>r.left+r.width/2;
+        const from=state.groups.findIndex(x=>x.id===gid),to=state.groups.findIndex(x=>x.id===g.dataset.groupId);
+        if(from!==-1&&to!==-1){
+          const dest=after?to+1:to;
+          if((dest>from?dest-1:dest)!==from){moveGroup(gid,g.dataset.groupId,after);saveData();renderGroups();showToast('已移动分组','success')}
+        }
+      }
+      return;
+    }
+    const id=dragId,target=g.dataset.groupId;dragId=null;if(!id||!target) return;
+    const sc=state.shortcuts.find(s=>s.id===id);if(!sc) return;
+    const card=e.target.closest('.shortcut-card');
+    if(card&&card.dataset.id===id) return;
+    let beforeId=null;
+    if(card&&card.dataset.id!==id){
+      const rect=card.getBoundingClientRect();
+      if(e.clientX>rect.left+rect.width/2){const next=card.nextElementSibling;beforeId=next&&next.dataset.id?next.dataset.id:null}
+      else beforeId=card.dataset.id;
+    }
+    if(sc.groupId===target){
+      const order=state.shortcuts.filter(s=>s.groupId===target).map(s=>s.id);
+      const cur=order.indexOf(id),dest=beforeId?order.indexOf(beforeId):order.length;
+      if((dest>cur?dest-1:dest)===cur) return;
+    }
+    moveShortcut(id,target,beforeId);
+    saveData();renderGroups();showToast('已移动','success');
   });
   els.searchInput.addEventListener('keydown',handleSearch);
   const searchSubmit=document.getElementById('search-submit');
