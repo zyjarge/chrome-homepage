@@ -68,26 +68,31 @@ a{color:inherit}
   background:var(--surface);border:1px solid var(--line);
   border-radius:var(--radius);padding:22px 20px 18px;
   box-shadow:var(--shadow);
+  display:grid;grid-template-columns:auto 1fr;column-gap:22px;align-items:center;
 }
 .kicker{
   font-family:"JetBrains Mono",monospace;
   font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
   display:flex;align-items:center;gap:8px;margin-bottom:12px;
+  grid-column:1/-1;
 }
 .kicker i{width:28px;height:1px;background:var(--line-strong);display:inline-block}
 #clock{
   font-family:"Space Grotesk",sans-serif;
-  font-size:3.4rem;font-weight:700;letter-spacing:-.04em;line-height:.9;
+  font-size:clamp(3.4rem,3.6vw,4.1rem);font-weight:700;letter-spacing:-.04em;line-height:.9;
   color:var(--ink);
+  grid-column:1;
 }
 #clock span{font-weight:500;color:var(--muted);font-size:1.6rem;vertical-align:baseline;margin-left:4px}
 #date{
   margin-top:8px;
   font-family:"JetBrains Mono",monospace;font-size:.78rem;color:var(--muted);letter-spacing:.02em;
+  grid-column:1;
 }
 .stats{
-  margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);
-  display:flex;gap:14px;
+  grid-column:2;grid-row:2/span 2;justify-self:end;text-align:right;
+  padding-left:18px;border-left:1px dashed var(--line);
+  display:flex;flex-direction:column;gap:8px;
   font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);
 }
 .stats b{color:var(--ink);font-weight:500}
@@ -353,7 +358,7 @@ body[data-theme="clay"] .group:hover{box-shadow:0 28px 42px -16px rgba(110,80,60
 body[data-theme="clay"] .group::before{display:none}
 body[data-theme="clay"] .kicker,body[data-theme="clay"] .stats,body[data-theme="clay"] #date,body[data-theme="clay"] .hint-mini,body[data-theme="clay"] .catalog-head p,body[data-theme="clay"] .catalog-head h1 em,body[data-theme="clay"] .group-title .meta{color:#a08772}
 body[data-theme="clay"] .kicker i{background:rgba(110,80,60,.25)}
-body[data-theme="clay"] .stats{border-top-color:rgba(110,80,60,.25)}
+body[data-theme="clay"] .stats{border-left-color:rgba(110,80,60,.25)}
 body[data-theme="clay"] .stats b,body[data-theme="clay"] .hint-mini b,body[data-theme="clay"] .empty-tip b{color:#5d4a3a}
 body[data-theme="clay"] #clock{color:#5d4a3a;text-shadow:0 2px 0 rgba(255,255,255,.7),0 -1px 1px rgba(110,80,60,.2)}
 body[data-theme="clay"] #clock span{color:#a08772}
@@ -416,7 +421,7 @@ body[data-theme="jelly"] .group:hover{box-shadow:0 26px 50px -18px rgba(120,110,
 body[data-theme="jelly"] .group::before{display:none}
 body[data-theme="jelly"] .kicker,body[data-theme="jelly"] .stats,body[data-theme="jelly"] #date,body[data-theme="jelly"] .hint-mini,body[data-theme="jelly"] .catalog-head p,body[data-theme="jelly"] .group-title .meta{color:#8a8a8a}
 body[data-theme="jelly"] .kicker i{background:rgba(120,140,200,.4)}
-body[data-theme="jelly"] .stats{border-top-color:rgba(120,140,200,.3)}
+body[data-theme="jelly"] .stats{border-left-color:rgba(120,140,200,.3)}
 body[data-theme="jelly"] .stats b,body[data-theme="jelly"] .hint-mini b,body[data-theme="jelly"] .empty-tip b{color:#1a1a1a}
 body[data-theme="jelly"] #clock{color:#1a1a1a;text-shadow:0 2px 0 rgba(255,255,255,.8)}
 body[data-theme="jelly"] #clock span{color:#8a8a8a}
@@ -482,7 +487,7 @@ body[data-theme="pixel"] #clock{color:#1c1c2e;text-shadow:3px 3px 0 #ffd25a}
 body[data-theme="pixel"] #clock span{color:#6a6a80;text-shadow:none}
 body[data-theme="pixel"] .kicker,body[data-theme="pixel"] .stats,body[data-theme="pixel"] #date,body[data-theme="pixel"] .hint-mini,body[data-theme="pixel"] .catalog-head p,body[data-theme="pixel"] .group-title .meta{color:#6a6a80}
 body[data-theme="pixel"] .kicker i{background:#1c1c2e}
-body[data-theme="pixel"] .stats{border-top:3px dashed #1c1c2e}
+body[data-theme="pixel"] .stats{border-left:3px dashed #1c1c2e}
 body[data-theme="pixel"] .stats b,body[data-theme="pixel"] .hint-mini b,body[data-theme="pixel"] .empty-tip b{color:#1c1c2e}
 body[data-theme="pixel"] .cmd{background:#fff;border:4px solid #1c1c2e;border-radius:0;box-shadow:4px 4px 0 #1c1c2e}
 body[data-theme="pixel"] .cmd:focus-within{box-shadow:4px 4px 0 #1c1c2e,0 0 0 3px #ffd25a}
@@ -545,7 +550,7 @@ body[data-theme="plush"] .group::before{left:8px;right:8px;top:8px;bottom:8px;wi
 body[data-theme="plush"] .kicker,body[data-theme="plush"] .stats,body[data-theme="plush"] .hint-mini,body[data-theme="plush"] .catalog-head p,body[data-theme="plush"] .group-title .meta{color:#b08d6e}
 body[data-theme="plush"] #date{color:#93755c}
 body[data-theme="plush"] .kicker i{background:rgba(190,150,110,.4)}
-body[data-theme="plush"] .stats{border-top-color:rgba(190,150,110,.35)}
+body[data-theme="plush"] .stats{border-left-color:rgba(190,150,110,.35)}
 body[data-theme="plush"] .stats b,body[data-theme="plush"] .hint-mini b,body[data-theme="plush"] .empty-tip b{color:#6b5340}
 body[data-theme="plush"] #clock{color:#6b5340;text-shadow:1px 1px 0 #fff,0 3px 0 rgba(190,150,110,.25)}
 body[data-theme="plush"] #clock span{color:#b08d6e;text-shadow:none}
@@ -610,7 +615,7 @@ body[data-theme="sketch"] .group::after{content:"";position:absolute;width:78px;
 body[data-theme="sketch"] .group:nth-child(2n)::after{transform:rotate(-3deg)}
 body[data-theme="sketch"] .kicker,body[data-theme="sketch"] .stats,body[data-theme="sketch"] .hint-mini,body[data-theme="sketch"] .catalog-head p,body[data-theme="sketch"] .group-title .meta{color:#8a8177}
 body[data-theme="sketch"] .kicker i{background:#8a8177}
-body[data-theme="sketch"] .stats{border-top:2px dashed #8a8177}
+body[data-theme="sketch"] .stats{border-left:2px dashed #8a8177}
 body[data-theme="sketch"] .stats b,body[data-theme="sketch"] .hint-mini b,body[data-theme="sketch"] .empty-tip b{color:#3a3630}
 body[data-theme="sketch"] #clock{color:#3a3630;text-shadow:2px 2px 0 rgba(58,54,48,.12)}
 body[data-theme="sketch"] #clock span{color:#8a8177;text-shadow:none}
@@ -862,7 +867,7 @@ function updateClock(){
   els.clock.innerHTML=`${pad(now.getHours())}:${pad(now.getMinutes())}<span>:${pad(now.getSeconds())}</span>`;
   els.date.textContent=now.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
   const total=state.shortcuts.length,groups=state.groups.length;
-  els.stats.innerHTML=`<span><b>${String(total).padStart(2,'0')}</b> SITES</span><span>·</span><span><b>${String(groups).padStart(2,'0')}</b> GROUPS</span><span>·</span><span>${editMode?'EDITING':'BROWSE'}</span>`;
+  els.stats.innerHTML=`<span><b>${String(total).padStart(2,'0')}</b> SITES</span><span><b>${String(groups).padStart(2,'0')}</b> GROUPS</span><span>${editMode?'EDITING':'BROWSE'}</span>`;
   if(els.catalogCount) els.catalogCount.textContent=`${String(total).padStart(2,'0')} SITES · ${String(groups).padStart(2,'0')} GROUPS`;
 }
 function renderGroups(){
